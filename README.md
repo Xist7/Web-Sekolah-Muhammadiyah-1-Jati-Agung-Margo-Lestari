@@ -90,5 +90,3 @@ Proyek Mata Kuliah Kapita Selekta Informatika — Teknik Informatika ITERA 2026,
 | 124140092 | Fachri Dwi Nugroho | Software Tester |
 
 **Mitra:** SMP Muhammadiyah 1 Jati Agung — Jl. Hadi Subroto, Margo Lestari, Jati Agung, Lampung Selatan.
-
-hai
