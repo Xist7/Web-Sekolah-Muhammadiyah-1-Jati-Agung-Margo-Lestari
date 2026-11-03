@@ -1,0 +1,88 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// Satu baris saja (id = 1): profil, visi-misi, kontak, jumlah siswa (F-01, F-05, F-06)
+model SchoolProfile {
+  id           Int      @id @default(1)
+  name         String
+  tagline      String   @default("")
+  about        String   @default("")
+  history      String   @default("")
+  vision       String   @default("")
+  mission      String   @default("") // satu misi per baris
+  address      String   @default("")
+  phone        String   @default("")
+  whatsapp     String   @default("") // format 62812xxxx
+  email        String   @default("")
+  mapEmbedUrl  String   @default("")
+  studentCount Int      @default(0) // diinput manual oleh admin (F-14)
+  classCount   Int      @default(0)
+  updatedAt    DateTime @updatedAt
+}
+
+model Facility {
+  id          String   @id @default(cuid())
+  name        String
+  description String   @default("")
+  imageUrl    String   @default("")
+  createdAt   DateTime @default(now())
+}
+
+model Teacher {
+  id        String   @id @default(cuid())
+  name      String
+  position  String // jabatan, mis. Kepala Sekolah / Guru
+  subject   String   @default("") // mata pelajaran
+  photoUrl  String   @default("")
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+}
+
+// Satu baris saja (id = 1): informasi PPDB (F-03)
+model PpdbInfo {
+  id           Int      @id @default(1)
+  isOpen       Boolean  @default(false)
+  academicYear String   @default("")
+  schedule     String   @default("") // satu item per baris
+  requirements String   @default("")
+  flow         String   @default("")
+  fees         String   @default("")
+  updatedAt    DateTime @updatedAt
+}
+
+enum RegistrationStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+
+// Data pendaftar PPDB (F-04, F-12)
+model Registration {
+  id             String             @id @default(cuid())
+  fullName       String
+  gender         String // L / P
+  birthPlace     String
+  birthDate      DateTime
+  nisn           String             @default("")
+  previousSchool String
+  parentName     String
+  parentPhone    String
+  address        String
+  status         RegistrationStatus @default(PENDING)
+  notes          String             @default("")
+  createdAt      DateTime           @default(now())
+}
+
+model GalleryItem {
+  id          String   @id @default(cuid())
+  title       String
+  description String   @default("")
+  imageUrl    String
+  createdAt   DateTime @default(now())
+}
