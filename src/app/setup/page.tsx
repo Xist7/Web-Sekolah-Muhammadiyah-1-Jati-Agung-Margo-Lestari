@@ -25,7 +25,7 @@ function Status({ ok, children }: { ok: boolean; children: React.ReactNode }) {
   );
 }
 
-export default async function Home({ searchParams }: PageProps<"/">) {
+export default async function SetupPage({ searchParams }: PageProps<"/setup">) {
   const [session, dbStatus, { error }] = await Promise.all([auth(), checkDb(), searchParams]);
 
   return (
