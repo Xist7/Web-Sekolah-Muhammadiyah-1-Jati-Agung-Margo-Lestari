@@ -1,0 +1,390 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pendaftaran Siswa Baru PPDB 2026/2027 — SMP Muhammadiyah 1 Jati Agung</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container">
+    <a class="brand" href="kapsel1.html" aria-label="SMP Muhammadiyah 1 Jati Agung — beranda">
+      <span class="brand-logo" aria-hidden="true">🌱</span>
+      <span><span class="brand-name">SMP MUHAMMADIYAH 1<br>JATI AGUNG</span><br><span class="brand-sub">Portal Resmi &amp; PPDB</span></span>
+    </a>
+    <nav class="main-nav" id="nav" aria-label="Navigasi utama">
+      <a href="kapsel1.html">Beranda</a>
+      <a href="kapsel1.html#program">Profil &amp; Program</a>
+      <a href="kapsel2.html" aria-current="page">Pendaftaran Siswa Baru</a>
+      <a href="kapsel1.html#kontak">Kontak &amp; Bantuan</a>
+    </nav>
+    <div class="header-actions">
+      <a class="btn btn-primary btn-sm" href="#form">Daftar Sekarang</a>
+      <button class="menu-toggle" id="menuBtn" aria-label="Buka menu" aria-expanded="false" aria-controls="nav">☰</button>
+    </div>
+  </div>
+</header>
+
+<div class="crumbbar">
+  <div class="container">
+    <nav class="crumbs" aria-label="Breadcrumb"><a href="kapsel1.html">🏠 Beranda</a><span aria-hidden="true">›</span><span class="cur" aria-current="page">Pendaftaran Siswa Baru (PPDB 2026/2027)</span></nav>
+    <div class="ticker"><span class="dot"></span> Pendaftaran Gelombang 1 dibuka hingga <b>28 Februari 2027</b></div>
+  </div>
+</div>
+
+<section class="reg-hero">
+  <div class="container">
+    <div class="reg-banner">
+      <div class="chips">
+        <span class="chip chip-dark">🎓 Tahun Ajaran 2026/2027</span>
+        <span class="chip chip-sand">✨ Bebas Tes Akademik Menegangkan</span>
+      </div>
+      <h1>Bergabung Menjadi Generasi Unggul &amp; Berkarakter</h1>
+      <p class="lead">Mendidik generasi muda beradab mulia, tangkas dalam teknologi digital, serta memiliki empati mendalam terhadap kelestarian alam nusantara. Asesmen holistik berbasis observasi bakat dan pemetaan minat.</p>
+      <div class="quota" aria-label="Keterisian kuota">
+        <div class="top"><span>👥 Keterisian Kuota Gelombang 1:</span><span><em>42</em> dari 120 Kursi Terisi (35%)</span></div>
+        <div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="120" aria-valuenow="42"><i></i></div>
+        <div class="bottom"><span>Tersisa 78 Kursi Tersedia</span><b>Tenggat Waktu: 28 Feb 2027</b></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<main class="container">
+  <div class="form-layout" id="form">
+    <form id="ppdb" novalidate autocomplete="on">
+
+      <!-- 1. Biodata -->
+      <section class="card form-card" aria-labelledby="h-bio">
+        <header><div class="t"><span class="ic" aria-hidden="true">🪪</span><h2 id="h-bio">Biodata Calon Siswa Baru</h2></div></header>
+        <div class="fields">
+          <div class="field">
+            <label for="nisn">Nomor Induk Siswa Nasional (NISN)<span class="req">*</span></label>
+            <input id="nisn" name="nisn" type="text" inputmode="numeric" maxlength="10" placeholder="Contoh: 0098765432" required pattern="\d{10}">
+            <span class="counter" id="nisnCount">0/10</span>
+            <span class="hint">10 digit angka</span><span class="err"></span>
+          </div>
+          <div class="field">
+            <label for="nama">Nama Lengkap Calon Siswa<span class="req">*</span></label>
+            <input id="nama" name="nama" type="text" placeholder="Sesuai akta kelahiran resmi" required minlength="3">
+            <span class="hint">Gunakan huruf balok atau penulisan baku.</span><span class="err"></span>
+          </div>
+          <fieldset class="field" id="f-jk">
+            <legend>Jenis Kelamin<span class="req">*</span></legend>
+            <div class="radios">
+              <label class="radio"><input type="radio" name="jk" value="L" required> Laki-laki</label>
+              <label class="radio"><input type="radio" name="jk" value="P"> Perempuan</label>
+            </div>
+            <span class="err"></span>
+          </fieldset>
+          <div class="field">
+            <label for="sd">Asal Sekolah Dasar (SD/MI)<span class="req">*</span></label>
+            <input id="sd" name="sd" type="text" placeholder="Contoh: SDN 1 Margo Lestari" required>
+            <span class="err"></span>
+          </div>
+          <div class="field">
+            <label for="tempat">Tempat Lahir (Kota/Kabupaten)<span class="req">*</span></label>
+            <input id="tempat" name="tempat" type="text" placeholder="Contoh: Lampung Selatan" required>
+            <span class="err"></span>
+          </div>
+          <div class="field">
+            <label for="tgl">Tanggal Lahir<span class="req">*</span></label>
+            <input id="tgl" name="tgl" type="date" required>
+            <span class="hint">Usia calon siswa maksimal 15 tahun pada 1 Juli 2026.</span><span class="err"></span>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2. Kontak -->
+      <section class="card form-card" aria-labelledby="h-kontak">
+        <header><div class="t"><span class="ic" aria-hidden="true">✉️</span><h2 id="h-kontak">Kontak Calon Siswa</h2></div></header>
+        <div class="fields">
+          <div class="field full">
+            <label for="email">Email<span class="req">*</span></label>
+            <input id="email" name="email" type="email" placeholder="Contoh: rusman@gmail.com" required>
+            <span class="hint">Masukkan email aktif untuk mendapatkan pengumuman PPDB.</span><span class="err"></span>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3. Orang tua -->
+      <section class="card form-card" aria-labelledby="h-ortu">
+        <header><div class="t"><span class="ic" aria-hidden="true">👪</span><h2 id="h-ortu">Data Orang Tua / Wali Murid</h2></div></header>
+        <div class="fields">
+          <div class="field">
+            <label for="ortu">Nama Lengkap Orang Tua / Wali<span class="req">*</span></label>
+            <input id="ortu" name="ortu" type="text" placeholder="Contoh: Ir. Bambang Hermanto, M.M." required>
+            <span class="err"></span>
+          </div>
+          <div class="field">
+            <label for="hub">Hubungan dengan Calon Siswa<span class="req">*</span></label>
+            <select id="hub" name="hub" required>
+              <option value="">Pilih hubungan…</option>
+              <option>Ayah Kandung</option><option>Ibu Kandung</option><option>Wali</option>
+            </select>
+            <span class="err"></span>
+          </div>
+          <div class="field">
+            <label for="wa">Nomor WhatsApp Aktif<span class="req">*</span></label>
+            <input id="wa" name="wa" type="tel" inputmode="tel" placeholder="081234567890" required pattern="(\+62|62|0)8[0-9]{8,12}">
+            <span class="hint">Format: 08xx</span><span class="err"></span>
+          </div>
+          <div class="field">
+            <label for="kerja">Pekerjaan Utama</label>
+            <select id="kerja" name="kerja">
+              <option>Karyawan Swasta / BUMN</option><option>PNS / TNI / Polri</option><option>Wiraswasta</option>
+              <option>Petani / Pekebun</option><option>Guru / Dosen</option><option>Lainnya</option>
+            </select>
+          </div>
+          <div class="field full">
+            <label for="alamat">Alamat Lengkap Domisili Saat Ini<span class="req">*</span></label>
+            <textarea id="alamat" name="alamat" placeholder="Contoh: Jl. Hadi Subroto No. 12, RT 04 / RW 02, Desa Margo Lestari, Kec. Jati Agung, Kab. Lampung Selatan" required></textarea>
+            <span class="err"></span>
+          </div>
+        </div>
+      </section>
+
+      <!-- 4. Info PPDB -->
+      <section class="card form-card" aria-labelledby="h-info">
+        <header><div class="t"><span class="ic" aria-hidden="true">📣</span><h2 id="h-info">Informasi PPDB</h2></div></header>
+        <div class="fields" style="padding-bottom:0">
+          <div class="field full">
+            <label for="program">Program yang Diminati</label>
+            <select id="program" name="program"><option>Kurikulum Merdeka Plus</option><option>Kurikulum Merdeka Reguler</option></select>
+          </div>
+        </div>
+        <fieldset style="border:0;padding:0;min-inline-size:0">
+          <legend class="sr-only">Dari mana Anda mengetahui PPDB ini?</legend>
+          <p style="padding:20px 24px 0;font-size:14px;font-weight:600">Dari mana Anda mengetahui PPDB ini?</p>
+          <div class="checks">
+            <label class="check"><input type="checkbox" name="info" value="Sosial Media"> Sosial Media</label>
+            <label class="check"><input type="checkbox" name="info" value="Keluarga"> Keluarga</label>
+            <label class="check"><input type="checkbox" name="info" value="Website"> Website</label>
+            <label class="check"><input type="checkbox" name="info" value="Saudara"> Saudara</label>
+            <label class="check"><input type="checkbox" name="info" value="Teman"> Teman</label>
+            <label class="check"><input type="checkbox" name="info" value="Guru"> Guru</label>
+            <label class="check"><input type="checkbox" name="info" value="Tetangga"> Tetangga</label>
+            <label class="check"><input type="checkbox" id="infoLain"> Yang lain :
+              <input type="text" id="infoLainTxt" name="infoLain" placeholder="Sebutkan…" disabled aria-label="Sumber informasi lainnya"></label>
+          </div>
+        </fieldset>
+      </section>
+
+      <!-- 5. Unggah -->
+      <section class="card form-card" aria-labelledby="h-up">
+        <header><div class="t"><span class="ic" aria-hidden="true">📎</span><h2 id="h-up">Unggah Berkas</h2></div></header>
+        <div class="uploads">
+
+          <div class="upload" data-key="foto" data-accept="image/jpeg,image/png" data-max="2">
+            <div class="upload-head"><h3>1. Pas Foto Siswa</h3><span class="chip chip-sand">Wajib diisi</span></div>
+            <p class="hint" style="margin-bottom:10px">Format JPG/PNG, ukuran maks. 2 MB. Foto akan dicetak pada Kartu Pelajar &amp; Buku Induk.</p>
+            <div class="drop">
+              <div class="ic" aria-hidden="true">📷</div>
+              <strong>Tarik &amp; letakkan foto di sini</strong>
+              <span class="sub">atau pilih file dari komputer / ponsel Anda</span>
+              <button type="button" class="btn btn-soft btn-sm pick">Pilih Foto</button>
+              <input type="file" class="sr-only" accept="image/jpeg,image/png" tabindex="-1">
+              <small>JPG / PNG • Maks. 2 MB</small>
+            </div>
+            <div class="file-row"><div class="thumb">📷</div>
+              <div class="file-info"><b></b><small></small><br><span class="ok-badge">Terunggah &amp; siap diverifikasi</span></div>
+              <button type="button" class="btn btn-ghost btn-sm replace">Ganti</button></div>
+            <span class="err"></span>
+            <div class="photo-guide">
+              <div><b>✓ Foto diterima</b>• Wajah menghadap depan (70–80% area)<br>• Latar belakang polos (merah/biru)<br>• Berkerah rapi / seragam SD</div>
+              <div class="bad"><b>✗ Foto ditolak</b>• Selfie / sudut miring<br>• Memakai filter atau kacamata hitam<br>• Gambar pecah / kurang dari 300 px</div>
+            </div>
+          </div>
+
+          <div class="upload" data-key="skl" data-accept="application/pdf,image/jpeg,image/png" data-max="5">
+            <div class="upload-head"><h3>2. Surat Keterangan Lulus (SKL) / Keterangan Kelas 6</h3><span class="chip chip-sand">Wajib diisi</span></div>
+            <p class="hint" style="margin-bottom:10px">Dari Kepala Sekolah Dasar asal calon siswa, bertanda tangan basah &amp; cap stempel resmi. Format PDF atau foto JPG/PNG, maks. 5 MB.</p>
+            <div class="drop">
+              <div class="ic" aria-hidden="true">📄</div>
+              <strong>Tarik &amp; letakkan berkas SKL di sini</strong>
+              <span class="sub">atau pilih file dari komputer / ponsel Anda</span>
+              <button type="button" class="btn btn-soft btn-sm pick">Pilih File SKL</button>
+              <input type="file" class="sr-only" accept="application/pdf,image/jpeg,image/png" tabindex="-1">
+              <small>PDF / JPG / PNG • Maks. 5 MB</small>
+            </div>
+            <div class="file-row"><div class="thumb">📄</div>
+              <div class="file-info"><b></b><small></small><br><span class="ok-badge">Terunggah &amp; siap diverifikasi</span></div>
+              <button type="button" class="btn btn-ghost btn-sm replace">Ganti</button></div>
+            <span class="err"></span>
+          </div>
+        </div>
+      </section>
+
+      <div class="action-bar">
+        <span class="status" id="saveStatus" aria-live="polite">Draf belum disimpan</span>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button type="button" class="btn btn-soft" id="saveDraft">💾 Simpan Draf Formulir</button>
+          <button type="submit" class="btn btn-primary">Kirim &amp; Lanjutkan Unggah Dokumen →</button>
+        </div>
+      </div>
+    </form>
+
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <div class="footer-brand"><span class="brand-logo" aria-hidden="true">🌱</span><b style="color:var(--primary)">SMP MUHAMMADIYAH 1 JATI AGUNG</b></div>
+        <p><b>Terakreditasi A+ (Unggul)</b></p>
+        <p>Membina generasi cendekia berakhlak mulia, berwawasan lingkungan lestari, dan berdaya saing global melalui ekosistem pendidikan holistik dan bersahaja.</p>
+        <p style="margin-top:8px;font-size:12px">NPSN: 20108921 • BAN-S/M 2023</p>
+      </div>
+      <div><h4>Profil &amp; Navigasi</h4><ul>
+        <li><a href="kapsel1.html">Beranda Utama</a></li><li><a href="kapsel1.html#program">Visi, Misi &amp; Kurikulum Merdeka</a></li>
+        <li><a href="kapsel1.html#ekskul">Ekstrakurikuler &amp; Prestasi</a></li><li><a href="#form">Jalur Zonasi &amp; Prestasi PPDB</a></li><li><a href="#form">Biaya Pendidikan &amp; Beasiswa</a></li></ul></div>
+      <div><h4>Layanan PPDB</h4><p><b>Jam Layanan Panitia:</b><br>Senin – Jumat: 08.00 – 15.30 WIB<br>Sabtu: 08.30 – 12.00 WIB</p>
+        <p style="margin-top:10px"><b>Alamat Sekolah:</b><br>Jl. Hadi Subroto, Margo Lestari, Kec. Jati Agung, Kab. Lampung Selatan, Lampung</p></div>
+      <div><h4>Kanal Resmi</h4><p>Hubungi saluran konsultasi pendaftaran daring:</p><ul style="margin-top:8px">
+        <li><a href="https://wa.me/6281200000000" target="_blank" rel="noopener">WhatsApp Helpdesk</a></li>
+        <li><a href="mailto:ppdb@smpmuh1jatiagung.sch.id">ppdb@smpmuh1jatiagung.sch.id</a></li><li>@smpmuh1jatiagung</li></ul></div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 SMP Muhammadiyah 1 Jati Agung. Seluruh hak cipta dilindungi undang-undang.</span>
+      <nav aria-label="Tautan hukum"><a href="#">Kebijakan Privasi</a><a href="#">Ketentuan PPDB</a><a href="#">Integritas Data Siswa</a></nav>
+    </div>
+  </div>
+</footer>
+
+<div class="toast" id="toast" role="status"></div>
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="mt">
+  <div class="modal-box">
+    <div class="big">🎉</div><h2 id="mt">Pendaftaran Terkirim</h2>
+    <p>Terima kasih, <b id="mName"></b>. Nomor pendaftaran Anda <code id="mNo"></code>. Simpan nomor ini; pengumuman akan dikirim ke email dan WhatsApp yang didaftarkan.</p>
+    <button class="btn btn-primary" id="mClose">Tutup</button>
+  </div>
+</div>
+
+<script>
+(() => {
+  const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
+  const form = $('#ppdb'), KEY = 'ppdb-draft-2026';
+  const store = { get() { try { return JSON.parse(localStorage.getItem(KEY)); } catch { return null; } },
+                  set(v) { try { localStorage.setItem(KEY, JSON.stringify(v)); return true; } catch { return false; } },
+                  del() { try { localStorage.removeItem(KEY); } catch {} } };
+  const files = {};   // key -> File
+
+  // mobile menu
+  const mb = $('#menuBtn'), nav = $('#nav');
+  mb.onclick = () => { const o = nav.classList.toggle('open'); mb.setAttribute('aria-expanded', o); };
+
+  // toast
+  let tt; const toast = m => { const t = $('#toast'); t.textContent = m; t.classList.add('show'); clearTimeout(tt); tt = setTimeout(() => t.classList.remove('show'), 2600); };
+
+  // NISN: digits only + counter
+  const nisn = $('#nisn');
+  nisn.addEventListener('input', () => { nisn.value = nisn.value.replace(/\D/g, '').slice(0, 10); $('#nisnCount').textContent = nisn.value.length + '/10'; });
+  $('#wa').addEventListener('input', e => e.target.value = e.target.value.replace(/[^\d+]/g, ''));
+  $('#nama').addEventListener('input', e => { const p = e.target.selectionStart; e.target.value = e.target.value.toUpperCase(); e.target.setSelectionRange(p, p); });
+
+  // "Yang lain" toggle
+  const lain = $('#infoLain'), lainTxt = $('#infoLainTxt');
+  lain.onchange = () => { lainTxt.disabled = !lain.checked; if (lain.checked) lainTxt.focus(); else lainTxt.value = ''; };
+
+  // birth date range
+  const tgl = $('#tgl'); tgl.max = new Date().toISOString().slice(0, 10); tgl.min = '2005-01-01';
+
+  // ---------- validation ----------
+  const msgs = {
+    nisn: 'NISN harus 10 digit angka.', nama: 'Isi nama lengkap sesuai akta kelahiran.', sd: 'Isi asal sekolah dasar.',
+    tempat: 'Isi tempat lahir.', tgl: 'Pilih tanggal lahir yang valid.', email: 'Masukkan alamat email yang valid.',
+    ortu: 'Isi nama orang tua / wali.', hub: 'Pilih hubungan dengan calon siswa.', wa: 'Gunakan nomor WhatsApp format 08xx.', alamat: 'Isi alamat domisili lengkap.'
+  };
+  function setErr(wrap, msg) { wrap.classList.toggle('invalid', !!msg); const e = $('.err', wrap); if (e) e.textContent = msg || ''; }
+  function checkField(el) {
+    const wrap = el.closest('.field'); let ok = el.checkValidity();
+    if (el.id === 'nisn' && el.value.length !== 10) ok = false;
+    if (el.id === 'nama' && el.value.trim().length < 3) ok = false;
+    if (el.id === 'alamat' && el.value.trim().length < 10) ok = false;
+    setErr(wrap, ok ? '' : (msgs[el.id] || 'Kolom ini wajib diisi.')); return ok;
+  }
+  const textFields = $$('input[required]:not([type=radio]), select[required], textarea[required]', form);
+  textFields.forEach(el => { el.addEventListener('blur', () => checkField(el)); el.addEventListener('input', () => { if (el.closest('.field').classList.contains('invalid')) checkField(el); }); });
+  $$('input[name=jk]').forEach(r => r.addEventListener('change', () => setErr($('#f-jk'), '')));
+  const checkJK = () => { const ok = !!$('input[name=jk]:checked'); setErr($('#f-jk'), ok ? '' : 'Pilih jenis kelamin.'); return ok; };
+
+  // ---------- uploads ----------
+  const fmt = b => b < 1048576 ? (b / 1024).toFixed(0) + ' KB' : (b / 1048576).toFixed(1) + ' MB';
+  $$('.upload').forEach(box => {
+    const key = box.dataset.key, max = +box.dataset.max * 1048576, accept = box.dataset.accept.split(',');
+    const input = $('input[type=file]', box), drop = $('.drop', box), row = $('.file-row', box), err = $('.err', box);
+    const setUpErr = m => { box.classList.toggle('invalid', !!m); err.textContent = m || ''; };
+    function handle(f) {
+      if (!f) return;
+      if (!accept.includes(f.type)) return setUpErr('Format tidak didukung. Gunakan ' + (key === 'foto' ? 'JPG atau PNG.' : 'PDF, JPG, atau PNG.'));
+      if (f.size > max) return setUpErr('Ukuran ' + fmt(f.size) + ' melebihi batas ' + fmt(max) + '.');
+      setUpErr(''); files[key] = f;
+      $('b', row).textContent = f.name; $('small', row).textContent = fmt(f.size) + ' • ' + (f.type.split('/')[1] || '').toUpperCase();
+      const th = $('.thumb', row);
+      if (f.type.startsWith('image/')) { const img = new Image(); img.alt = 'Pratinjau ' + f.name; img.src = URL.createObjectURL(f); th.replaceChildren(img); }
+      else th.textContent = '📄';
+      row.classList.add('show'); drop.style.display = 'none'; refresh();
+    }
+    $('.pick', box).onclick = () => input.click();
+    $('.replace', box).onclick = () => { input.value = ''; input.click(); };
+    input.onchange = () => handle(input.files[0]);
+    ['dragenter', 'dragover'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add('over'); }));
+    ['dragleave', 'drop'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove('over'); }));
+    drop.addEventListener('drop', e => handle(e.dataTransfer.files[0]));
+  });
+
+  const refresh = () => {};
+
+  // ---------- draft ----------
+  function collect() {
+    const d = {}; $$('input, select, textarea', form).forEach(el => {
+      if (el.type === 'file') return;
+      if (el.type === 'radio') { if (el.checked) d[el.name] = el.value; }
+      else if (el.type === 'checkbox') d[el.id || el.name + ':' + el.value] = el.checked;
+      else d[el.id || el.name] = el.value; });
+    return d;
+  }
+  function restore(d) {
+    if (!d) return;
+    $$('input, select, textarea', form).forEach(el => {
+      if (el.type === 'file') return;
+      if (el.type === 'radio') el.checked = d[el.name] === el.value;
+      else if (el.type === 'checkbox') el.checked = !!d[el.id || el.name + ':' + el.value];
+      else if ((el.id || el.name) in d) el.value = d[el.id || el.name]; });
+    lainTxt.disabled = !lain.checked; $('#nisnCount').textContent = nisn.value.length + '/10';
+  }
+  $('#saveDraft').onclick = () => {
+    const ok = store.set(collect());
+    $('#saveStatus').textContent = ok ? 'Draf tersimpan ' + new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) : 'Draf gagal disimpan (penyimpanan browser dinonaktifkan)';
+    toast(ok ? 'Draf tersimpan. Berkas unggahan perlu dipilih ulang saat melanjutkan.' : 'Draf tidak dapat disimpan di browser ini.');
+  };
+  const saved = store.get(); if (saved) { restore(saved); $('#saveStatus').textContent = 'Draf sebelumnya dimuat'; }
+
+  // ---------- submit ----------
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+    let first = null, bad = 0;
+    textFields.forEach(el => { if (!checkField(el)) { bad++; first = first || el; } });
+    if (!checkJK()) { bad++; first = first || $('input[name=jk]'); }
+    if (lain.checked && !lainTxt.value.trim()) { bad++; lainTxt.focus(); first = first || lainTxt; }
+    ['foto', 'skl'].forEach(k => { const box = $(`.upload[data-key=${k}]`); if (!files[k]) { box.classList.add('invalid'); $('.err', box).textContent = 'Berkas ini wajib diunggah.'; bad++; first = first || $('.pick', box); } });
+    if (bad) { first.scrollIntoView({ behavior: 'smooth', block: 'center' }); first.focus({ preventScroll: true }); return toast(bad + ' isian perlu diperbaiki.'); }
+
+    // TODO: kirim ke server, mis. fetch('/api/ppdb', {method:'POST', body: new FormData(form)}) dan tambahkan files.foto / files.skl.
+    const no = 'PPDB-2026-' + String(Math.floor(Math.random() * 9000) + 1000);
+    $('#mName').textContent = $('#nama').value; $('#mNo').textContent = no;
+    store.del(); $('#modal').classList.add('show'); $('#mClose').focus();
+  });
+  $('#mClose').onclick = () => { $('#modal').classList.remove('show'); form.reset(); location.href = 'kapsel1.html'; };
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') $('#modal').classList.remove('show'); });
+  refresh();
+})();
+</script>
+</body>
+</html>
