@@ -55,7 +55,7 @@ export function UploadBox(p: Props) {
         onDragLeave={dragOff}
         onDrop={(e) => { dragOff(e); handle(e.dataTransfer.files[0]); }}
       >
-        <div className="ic" aria-hidden="true"> p.icon}</div>
+        <div className="ic" aria-hidden="true"> {p.icon}</div>
         <strong>{p.dropText}</strong>
         <span className="sub">atau pilih file dari komputer / ponsel Anda</span>
         <button type="button" className="btn btn-soft btn-sm pick" onClick={pick}>{p.pickText}</button>
