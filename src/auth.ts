@@ -12,7 +12,7 @@ export const isAdminEmail = (email?: string | null) =>
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   providers: [Google],
-  pages: { error: "/" },
+  pages: { signIn: "/login", error: "/login" },
   callbacks: {
     signIn: ({ user }) => isAdminEmail(user.email),
   },

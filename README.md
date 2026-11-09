@@ -1,6 +1,6 @@
 # Website Profil SMP Muhammadiyah 1 Jati Agung
 
-Website profil sekolah sebagai media informasi dan PPDB untuk **SMP Muhammadiyah 1 Jati Agung**, Desa Margo Lestari, Kec. Jati Agung, Kab. Lampung Selatan.
+Website profil sekolah sebagai media informasi dan PPDB untuk **SMP Muhammadiyah 1 Jati Agung**, Desa Margo Lestari, Kec. Jati Agung, Kab. Lampung Selatan. 
 
 Proyek Mata Kuliah Kapita Selekta Informatika — Teknik Informatika ITERA 2026, berorientasi SDGs Desa **Tujuan 4.4 (indikator 4.4.1.a)**: keterampilan TIK.
 
