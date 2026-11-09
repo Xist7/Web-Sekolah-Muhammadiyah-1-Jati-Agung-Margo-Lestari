@@ -1,4 +1,4 @@
-import { db } from "@/lib/db";
+import { getDashboardStats } from "@/lib/admin/queries";
 
 export const dynamic = "force-dynamic";
 
@@ -10,24 +10,23 @@ const statusClass = {
 } as const;
 
 export default async function DashboardPage() {
-  const [total, pending, accepted, rejected, latest] = await Promise.all([
-    db.registration.count(),
-    db.registration.count({ where: { status: "PENDING" } }),
-    db.registration.count({ where: { status: "ACCEPTED" } }),
-    db.registration.count({ where: { status: "REJECTED" } }),
-    db.registration.findMany({ orderBy: { createdAt: "desc" }, take: 10 }),
-  ]);
+  const { total, byStatus, latest, profile, ppdb } = await getDashboardStats();
 
   const stats = [
     { label: "Total Pendaftar", value: total },
-    { label: "Menunggu", value: pending },
-    { label: "Diterima", value: accepted },
-    { label: "Ditolak", value: rejected },
+    { label: "Menunggu", value: byStatus.PENDING },
+    { label: "Diterima", value: byStatus.ACCEPTED },
+    { label: "Ditolak", value: byStatus.REJECTED },
   ];
 
   return (
     <main className="mx-auto max-w-6xl space-y-8 px-4 py-8">
-      <h1 className="text-2xl font-bold text-slate-800">Dashboard PPDB</h1>
+      <div className="flex flex-wrap items-end justify-between gap-2">
+        <h1 className="text-2xl font-bold text-slate-800">Dashboard PPDB</h1>
+        <p className="text-sm text-slate-500">
+          PPDB {ppdb?.academicYear || "-"}: {ppdb?.isOpen ? "dibuka" : "ditutup"} · {profile?.studentCount ?? 0} siswa · {profile?.classCount ?? 0} kelas
+        </p>
+      </div>
 
       <section className="grid grid-cols-2 gap-4 md:grid-cols-4">
         {stats.map((s) => (
