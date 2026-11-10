@@ -1,4 +1,4 @@
-# Website Profil SMP Muhammadiyah 1 Jati Agung
+# Website Profil SMP Muhammadiyah 1 Jati Agung 
 
 Website profil sekolah sebagai media informasi dan PPDB untuk **SMP Muhammadiyah 1 Jati Agung**, Desa Margo Lestari, Kec. Jati Agung, Kab. Lampung Selatan. 
 
