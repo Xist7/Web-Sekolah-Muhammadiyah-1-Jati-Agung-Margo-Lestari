@@ -108,7 +108,7 @@ export default function HomePage() {
           </div>
           <div className="grid-2">
             {facilities.map((f) => (
-              <article className={`card fac${f.wide ? " wide" : ""}`} key={f.title}>
+              <article className="card fac" key={f.title}>
                 <div className="ph" role="img" aria-label={f.alt}></div>
                 <h3>{f.title}</h3>
                 <p>{f.desc}</p>
