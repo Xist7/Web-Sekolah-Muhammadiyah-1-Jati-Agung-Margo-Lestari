@@ -28,6 +28,7 @@ export async function listRegistrations(opts: { status?: RegistrationStatus; q?:
     ...(q && {
       OR: [
         { fullName: { contains: q, mode: "insensitive" } },
+        { regNumber: { contains: q, mode: "insensitive" } },
         { nisn: { contains: q } },
         { previousSchool: { contains: q, mode: "insensitive" } },
         { parentName: { contains: q, mode: "insensitive" } },

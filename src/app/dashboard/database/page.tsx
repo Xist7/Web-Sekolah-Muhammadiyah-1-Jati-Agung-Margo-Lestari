@@ -1,6 +1,6 @@
-import Link from "next/link";
-import { requireAdmin } from "@/lib/admin/guard";
+import { requireAdminPage } from "@/lib/admin/guard";
 import { db } from "@/lib/db";
+import { TableSelect } from "./table-select";
 
 export const dynamic = "force-dynamic";
 
@@ -19,6 +19,9 @@ const tables = {
         db.upload.count(),
       ]),
   },
+  Post: { label: "Berita", load: () => Promise.all([db.post.findMany({ orderBy: { updatedAt: "desc" }, take: LIMIT }), db.post.count()]) },
+  AuditLog: { label: "Audit Log", load: () => Promise.all([db.auditLog.findMany({ orderBy: { createdAt: "desc" }, take: LIMIT }), db.auditLog.count()]) },
+  Admin: { label: "Admin", load: () => Promise.all([db.admin.findMany({ orderBy: { email: "asc" }, take: LIMIT }), db.admin.count()]) },
   SchoolProfile: { label: "Profil Sekolah", load: () => Promise.all([db.schoolProfile.findMany({ take: LIMIT }), db.schoolProfile.count()]) },
   Teacher: { label: "Guru", load: () => Promise.all([db.teacher.findMany({ take: LIMIT }), db.teacher.count()]) },
   Facility: { label: "Fasilitas", load: () => Promise.all([db.facility.findMany({ take: LIMIT }), db.facility.count()]) },
@@ -40,33 +43,20 @@ function cell(key: string, v: unknown) {
 }
 
 export default async function DatabasePage({ searchParams }: PageProps<"/dashboard/database">) {
-  await requireAdmin();
+  await requireAdminPage();
   const { tabel } = await searchParams;
   const name: TableName = isTable(tabel) ? tabel : "Registration";
   const [rows, total] = (await tables[name].load()) as [Record<string, unknown>[], number];
   const columns = rows.length ? Object.keys(rows[0]) : [];
 
   return (
-    <main className="mx-auto max-w-6xl space-y-6 px-4 py-8">
+    <main className="mx-auto max-w-6xl space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-slate-800">Database</h1>
         <p className="text-sm text-slate-500">Tampilan isi tabel database Neon (hanya baca).</p>
       </div>
 
-      <nav className="flex flex-wrap gap-2" aria-label="Pilih tabel">
-        {(Object.keys(tables) as TableName[]).map((t) => (
-          <Link
-            key={t}
-            href={`/dashboard/database?tabel=${t}`}
-            aria-current={t === name ? "page" : undefined}
-            className={`rounded-full px-4 py-1.5 text-sm font-medium ${
-              t === name ? "bg-slate-800 text-white" : "bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-slate-100"
-            }`}
-          >
-            {tables[t].label}
-          </Link>
-        ))}
-      </nav>
+      <TableSelect value={name} options={(Object.keys(tables) as TableName[]).map((t) => ({ value: t, label: tables[t].label }))} />
 
       <section className="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-slate-100">
         <h2 className="border-b border-slate-100 px-5 py-4 font-semibold text-slate-700">

@@ -21,7 +21,8 @@
   --shadow-lg: 0 8px 10px -6px rgba(0,0,0,.1), 0 20px 25px -5px rgba(0,0,0,.1);
   --radius: 16px;
 }
-* { box-sizing: border-box; margin: 0; padding: 0; }
+/* Di dalam @layer agar tidak menimpa utility Tailwind (panel admin) */
+@layer base { * { box-sizing: border-box; margin: 0; padding: 0; } }
 html { scroll-behavior: smooth; }
 body {
   font-family: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
@@ -30,9 +31,11 @@ body {
   line-height: 1.5;
   padding-top: 80px;
 }
-a { color: inherit; text-decoration: none; }
+@layer base {
+  a { color: inherit; text-decoration: none; }
 img { max-width: 100%; display: block; }
-button { font: inherit; cursor: pointer; }
+  button { font: inherit; cursor: pointer; }
+}
 .container { width: 100%; max-width: 1200px; margin: 0 auto; padding: 0 24px; }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
@@ -342,3 +345,8 @@ fieldset.field { border: 0; min-inline-size: 0; }
   .action-bar .btn { flex: 1; }
 }
 @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } html { scroll-behavior: auto; } }
+
+/* Halaman PPDB saat pendaftaran ditutup (diatur dari panel admin) */
+.closed-card { max-width: 640px; margin: 32px auto 64px; text-align: center; padding: 40px 24px; }
+.closed-card .big { font-size: 48px; }
+.closed-card h2 { margin: 8px 0; color: var(--primary); }

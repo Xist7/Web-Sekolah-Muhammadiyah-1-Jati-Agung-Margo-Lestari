@@ -1,15 +1,22 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useConfirm } from "@/components/admin/confirm-dialog";
 import { setPpdbOpen } from "@/lib/admin/content-actions";
 
 export function PpdbToggle({ isOpen }: { isOpen: boolean }) {
   const [pending, start] = useTransition();
   const [msg, setMsg] = useState<string>();
+  const [dialog, confirm] = useConfirm();
 
-  function toggle() {
+  async function toggle() {
     const next = !isOpen;
-    if (!confirm(next ? "Buka pendaftaran PPDB sekarang?" : "Tutup pendaftaran PPDB? Formulir di website akan disembunyikan.")) return;
+    const ok = await confirm(
+      next
+        ? { title: "Buka pendaftaran PPDB?", message: "Formulir pendaftaran akan langsung tampil di website dan calon siswa bisa mendaftar.", confirmText: "Ya, buka pendaftaran", icon: "🟢" }
+        : { title: "Tutup pendaftaran PPDB?", message: "Formulir di website akan disembunyikan dan kiriman baru ditolak.", confirmText: "Ya, tutup pendaftaran", danger: true, icon: "🔒" },
+    );
+    if (!ok) return;
     start(async () => {
       const r = await setPpdbOpen(next);
       setMsg(r.message);
@@ -17,6 +24,8 @@ export function PpdbToggle({ isOpen }: { isOpen: boolean }) {
   }
 
   return (
+    <>
+    {dialog}
     <section
       className={`flex flex-wrap items-center justify-between gap-4 rounded-xl p-5 shadow-sm ring-1 ${
         isOpen ? "bg-emerald-50 ring-emerald-200" : "bg-red-50 ring-red-200"
@@ -40,5 +49,6 @@ export function PpdbToggle({ isOpen }: { isOpen: boolean }) {
         {pending ? "Menyimpan…" : isOpen ? "Tutup Pendaftaran" : "Buka Pendaftaran"}
       </button>
     </section>
+    </>
   );
 }

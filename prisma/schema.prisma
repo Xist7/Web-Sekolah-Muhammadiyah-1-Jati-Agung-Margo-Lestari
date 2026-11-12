@@ -111,4 +111,56 @@ model Upload {
   isPublic  Boolean  @default(true)
   data      Bytes
   createdAt DateTime @default(now())
+
+  @@index([isPublic, createdAt])
+}
+
+
+// Akun yang boleh masuk panel admin (login Google). Email di env ADMIN_EMAILS = admin cadangan.
+model Admin {
+  id          String    @id @default(cuid())
+  email       String    @unique // selalu huruf kecil
+  name        String    @default("")
+  isActive    Boolean   @default(true)
+  lastLoginAt DateTime?
+  createdBy   String    @default("")
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+enum PostStatus {
+  DRAFT
+  PUBLISHED
+}
+
+// Berita / agenda sekolah (dikelola di /dashboard/berita, tampil di /berita/<slug>)
+model Post {
+  id          String     @id @default(cuid())
+  slug        String     @unique
+  title       String
+  subtitle    String     @default("") // ringkasan di bawah judul & di kartu berita
+  content     String     @default("") // teks berformat sederhana (paragraf, ## subjudul, **tebal**, gambar)
+  coverUrl    String     @default("")
+  category    String     @default("")
+  status      PostStatus @default(DRAFT)
+  author      String     @default("")
+  publishedAt DateTime?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  @@index([status, publishedAt])
+}
+
+// Jejak aktivitas admin (/dashboard/audit-log). Otomatis dipangkas: maks. 5.000 terbaru (lihat src/lib/audit.ts)
+model AuditLog {
+  id         String   @id @default(cuid())
+  actorEmail String
+  actorName  String   @default("")
+  actorRole  String   @default("ADMIN") // ADMIN | SISTEM
+  action     String // LOGIN, LOGOUT, CREATE, UPDATE, DELETE, UPLOAD, PUBLISH, OPEN, CLOSE
+  summary    String // kalimat yang tampil, mis. "mengubah konten Fasilitas"
+  target     String   @default("")
+  createdAt  DateTime @default(now())
+
+  @@index([createdAt])
 }

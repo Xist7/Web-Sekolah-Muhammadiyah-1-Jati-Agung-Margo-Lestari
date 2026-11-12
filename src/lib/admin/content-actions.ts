@@ -1,8 +1,9 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { logAudit } from "@/lib/audit";
 import { db } from "@/lib/db";
-import { contentDefaults, isContentKey } from "@/lib/content/defaults";
+import { contentDefaults, isContentKey, sections } from "@/lib/content/defaults";
 import { conform } from "@/lib/content/shape";
 import { requireAdmin, UnauthorizedError } from "./guard";
 import type { ActionResult } from "./actions";
@@ -19,7 +20,7 @@ const fail = (e: unknown): ActionResult => {
 /** Simpan seluruh isi satu bagian konten (header / home / ppdb / footer). */
 export async function saveContent(key: string, json: string): Promise<ActionResult> {
   try {
-    await requireAdmin();
+    const me = await requireAdmin();
     if (!isContentKey(key)) return { ok: false, message: "Bagian konten tidak dikenal." };
     let raw: unknown;
     try {
@@ -30,6 +31,7 @@ export async function saveContent(key: string, json: string): Promise<ActionResu
     const data = conform(raw, contentDefaults[key]);
     await db.siteContent.upsert({ where: { key }, create: { key, data }, update: { data } });
     revalidatePath("/", "layout");
+    await logAudit(me, "UPDATE", `mengubah konten ${sections[key].label}`, sections[key].label);
     return { ok: true, message: "Konten disimpan & langsung tampil di website." };
   } catch (e) {
     return fail(e);
@@ -39,10 +41,11 @@ export async function saveContent(key: string, json: string): Promise<ActionResu
 /** Kembalikan satu bagian ke isi bawaan. */
 export async function resetContent(key: string): Promise<ActionResult> {
   try {
-    await requireAdmin();
+    const me = await requireAdmin();
     if (!isContentKey(key)) return { ok: false, message: "Bagian konten tidak dikenal." };
     await db.siteContent.deleteMany({ where: { key } });
     revalidatePath("/", "layout");
+    await logAudit(me, "UPDATE", `mengembalikan konten ${sections[key].label} ke isi bawaan`, sections[key].label);
     return { ok: true, message: "Konten dikembalikan ke isi bawaan." };
   } catch (e) {
     return fail(e);
@@ -52,7 +55,7 @@ export async function resetContent(key: string): Promise<ActionResult> {
 /** Unggah gambar konten (publik). Mengembalikan URL /api/files/{id}. */
 export async function uploadImage(formData: FormData): Promise<{ ok: true; url: string } | { ok: false; message: string }> {
   try {
-    await requireAdmin();
+    const me = await requireAdmin();
     const file = formData.get("file");
     if (!(file instanceof File) || file.size === 0) return { ok: false, message: "Pilih file gambar." };
     if (!IMAGE_TYPES.includes(file.type)) return { ok: false, message: "Format harus JPG, PNG, WEBP, atau GIF." };
@@ -67,6 +70,7 @@ export async function uploadImage(formData: FormData): Promise<{ ok: true; url: 
       },
       select: { id: true },
     });
+    await logAudit(me, "UPLOAD", "mengunggah gambar ke media", file.name);
     return { ok: true, url: `/api/files/${up.id}` };
   } catch (e) {
     const r = fail(e);
@@ -77,10 +81,38 @@ export async function uploadImage(formData: FormData): Promise<{ ok: true; url: 
 /** Buka / tutup pendaftaran PPDB. */
 export async function setPpdbOpen(open: boolean): Promise<ActionResult> {
   try {
-    await requireAdmin();
+    const me = await requireAdmin();
     await db.ppdbInfo.upsert({ where: { id: 1 }, create: { id: 1, isOpen: open }, update: { isOpen: open } });
     revalidatePath("/", "layout");
+    await logAudit(me, open ? "OPEN" : "CLOSE", open ? "membuka pendaftaran PPDB" : "menutup pendaftaran PPDB", "PPDB");
     return { ok: true, message: open ? "Pendaftaran DIBUKA." : "Pendaftaran DITUTUP." };
+  } catch (e) {
+    return fail(e);
+  }
+}
+
+// ── Pustaka media (gambar website) ──
+export type MediaItem = { id: string; url: string; filename: string; size: number; createdAt: string };
+
+/** Daftar gambar publik terbaru (tanpa mengambil isi file, supaya cepat). */
+export async function listMedia(): Promise<MediaItem[]> {
+  await requireAdmin();
+  const rows = await db.upload.findMany({
+    where: { isPublic: true, mime: { startsWith: "image/" } },
+    orderBy: { createdAt: "desc" },
+    take: 300,
+    select: { id: true, filename: true, size: true, createdAt: true },
+  });
+  return rows.map((r) => ({ id: r.id, url: `/api/files/${r.id}`, filename: r.filename, size: r.size, createdAt: r.createdAt.toISOString() }));
+}
+
+export async function deleteMedia(id: string): Promise<ActionResult> {
+  try {
+    const me = await requireAdmin();
+    const del = await db.upload.delete({ where: { id, isPublic: true }, select: { filename: true } });
+    await logAudit(me, "DELETE", "menghapus gambar dari media", del.filename);
+    revalidatePath("/dashboard/media");
+    return { ok: true, message: "Gambar dihapus dari media." };
   } catch (e) {
     return fail(e);
   }

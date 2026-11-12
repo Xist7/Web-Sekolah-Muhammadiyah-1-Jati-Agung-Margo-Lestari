@@ -1,3 +1,4 @@
+import { requireAdminPage } from "@/lib/admin/guard";
 import { getDashboardStats } from "@/lib/admin/queries";
 import { PpdbToggle } from "./ppdb-toggle";
 
@@ -11,6 +12,7 @@ const statusClass = {
 } as const;
 
 export default async function DashboardPage() {
+  await requireAdminPage();
   const { total, byStatus, latest, profile, ppdb } = await getDashboardStats();
 
   const stats = [
@@ -21,7 +23,7 @@ export default async function DashboardPage() {
   ];
 
   return (
-    <main className="mx-auto max-w-6xl space-y-8 px-4 py-8">
+    <main className="mx-auto max-w-6xl space-y-8">
       <div className="flex flex-wrap items-end justify-between gap-2">
         <h1 className="text-2xl font-bold text-slate-800">Dashboard PPDB</h1>
         <p className="text-sm text-slate-500">
@@ -62,7 +64,7 @@ export default async function DashboardPage() {
                 {latest.map((r) => (
                   <tr key={r.id}>
                     <td className="px-5 py-3 font-mono text-xs text-slate-500">{r.regNumber}</td>
-                    <td className="px-5 py-3 font-medium text-slate-700">{r.fullName}</td>
+                    <td className="px-5 py-3 font-medium"><a href={`/dashboard/pendaftar/${r.id}`} className="text-emerald-800 hover:underline">{r.fullName}</a></td>
                     <td className="px-5 py-3 text-slate-600">{r.previousSchool}</td>
                     <td className="px-5 py-3 text-slate-600">{r.parentPhone}</td>
                     <td className="px-5 py-3 text-slate-600">{r.createdAt.toLocaleDateString("id-ID")}</td>

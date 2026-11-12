@@ -1,5 +1,6 @@
 "use client";
 
+import { compressImage } from "@/lib/image";
 import { useEffect, useMemo, useRef, useState, type DragEvent, type ReactNode } from "react";
 
 const fmt = (b: number) => (b < 1048576 ? (b / 1024).toFixed(0) + " KB" : (b / 1048576).toFixed(1) + " MB");
@@ -30,9 +31,11 @@ export function UploadBox(p: Props) {
   );
   useEffect(() => () => { if (preview) URL.revokeObjectURL(preview); }, [preview]);
 
-  function handle(f?: File) {
-    if (!f) return;
-    if (!p.accept.includes(f.type)) return p.onError(p.formatError);
+  async function handle(raw?: File) {
+    if (!raw) return;
+    if (!p.accept.includes(raw.type)) return p.onError(p.formatError);
+    // Gambar dikompres dulu (JPEG 60%, maks. 1600 px) supaya hemat ruang database & cepat diunggah
+    const f = await compressImage(raw, { quality: 0.6, maxSide: 1600 });
     const max = p.maxMb * 1048576;
     if (f.size > max) return p.onError(`Ukuran ${fmt(f.size)} melebihi batas ${fmt(max)}.`);
     p.onError("");
