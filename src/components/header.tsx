@@ -20,12 +20,11 @@ export function Header() {
     <header className="site-header">
       <div className="container">
         <Link className="brand" href="/" aria-label="SMP Muhammadiyah 1 Jati Agung — beranda">
-          <span className="brand-logo" aria-hidden="true">🌱</span>
-          <span>
-            <span className="brand-name">SMP MUHAMMADIYAH 1<br />JATI AGUNG</span>
-            <br />
-            <span className="brand-sub">Portal Resmi &amp; PPDB</span>
-          </span>
+          <span className="logo" aria-hidden="true">🌱</span>
+          <div>
+            <b>SMP Muhammadiyah 1 Jati Agung</b>
+            <small>Portal Resmi &amp; PPDB</small>
+          </div>
         </Link>
         <nav className={`main-nav${open ? " open" : ""}`} id="nav" aria-label="Navigasi utama">
           {nav.map((n) => (
