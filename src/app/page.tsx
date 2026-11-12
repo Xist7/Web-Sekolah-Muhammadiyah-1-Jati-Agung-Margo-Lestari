@@ -8,10 +8,8 @@ const stats = [
 ];
 
 const facilities = [
-  { ic: "🖥️", alt: "Ruang kelas", title: "Ruang Kelas Multimedia", desc: "Papan interaktif 75 inci dan konfigurasi meja modular untuk kerja kelompok dinamis." },
-  { ic: "🔬", alt: "Laboratorium", title: "Laboratorium Sains", desc: "Peralatan eksperimen biologi, kimia ramah lingkungan, kit IoT Arduino, serta printer 3D." },
-  { ic: "📚", alt: "Perpustakaan", title: "Perpustakaan & Reading Lounge", desc: "Akses ribuan e-book, jurnal sains remaja, dan sudut baca santai berkarpet hening." },
-  { ic: "🏀", alt: "Gelanggang olahraga", title: "Gelanggang Olahraga", desc: "Lapangan basket indoor berstandar kompetisi dan area tenis meja untuk aktivitas fisik.", wide: true },
+  { ic: "🏫", alt: "Ruang kelas", title: "Ruang Kelas", desc: "Ruang belajar yang bersih dan nyaman untuk kegiatan belajar sehari-hari." },
+  { ic: "🏢", alt: "Kantor", title: "Kantor", desc: "Tempat guru dan staf bekerja, sekaligus melayani orang tua dan tamu yang ingin bertanya atau mengurus keperluan sekolah." },
 ];
 
 const achievements = [
@@ -108,10 +106,10 @@ export default function HomePage() {
             <p className="eyebrow">Sarana &amp; Prasarana</p>
             <h2 className="section-title">Fasilitas SMP Muhammadiyah 1 Jati Agung</h2>
           </div>
-          <div className="grid-3">
+          <div className="grid-2">
             {facilities.map((f) => (
               <article className={`card fac${f.wide ? " wide" : ""}`} key={f.title}>
-                <div className="ph" role="img" aria-label={f.alt}>{f.ic}</div>
+                <div className="ph" role="img" aria-label={f.alt}></div>
                 <h3>{f.title}</h3>
                 <p>{f.desc}</p>
               </article>
