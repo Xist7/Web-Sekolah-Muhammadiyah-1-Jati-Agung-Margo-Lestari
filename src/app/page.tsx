@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { GuruCarousel } from "@/components/guru-carousel";
+import { Reveal } from "@/components/reveal";
 
 const stats = [
   { ic: "📅", value: "1993", label: "Sekolah berdiri sejak" },
@@ -37,7 +38,7 @@ const news = [
 export default function HomePage() {
   return (
     <main id="beranda">
-      {/* HERO */}
+      {/* HERO (tidak dibungkus, langsung tampil) */}
       <section className="hero">
         <div className="container">
           <Link className="chip" href="/ppdb">
@@ -78,22 +79,24 @@ export default function HomePage() {
       {/* SAMBUTAN */}
       <section className="section" id="program">
         <div className="container">
-          <div className="principal">
-            <figure className="principal-photo">
-              <div className="ph" role="img" aria-label="Foto Kepala Sekolah">👤</div>
-              <figcaption><b>Julianto</b><span>Kepala Sekolah SMP Muhammadiyah 1 Jati Agung</span></figcaption>
-            </figure>
-            <div>
-              <p className="eyebrow">Visi dan Misi Sekolah</p>
-              <blockquote>“Setiap anak adalah bibit unggul yang bertumbuh optimal di tanah yang penuh kasih dan keteladanan.”</blockquote>
-              <p>
-                Selamat datang di SMP Muhammadiyah 1 Jati Agung. Memasuki usia remaja awal adalah fase transisi krusial
-                di mana rasa ingin tahu, kecerdasan moral, dan kesadaran sosial mulai berakar kuat. Kami meyakini bahwa
-                pendidikan sejati bukan semata tentang tumpukan nilai kognitif, melainkan penempaan integritas budi
-                pekerti yang selaras dengan kecintaan terhadap sesama dan alam semesta.
-              </p>
+          <Reveal>
+            <div className="principal">
+              <figure className="principal-photo">
+                <div className="ph" role="img" aria-label="Foto Kepala Sekolah">👤</div>
+                <figcaption><b>Julianto</b><span>Kepala Sekolah SMP Muhammadiyah 1 Jati Agung</span></figcaption>
+              </figure>
+              <div>
+                <p className="eyebrow">Visi dan Misi Sekolah</p>
+                <blockquote>“Setiap anak adalah bibit unggul yang bertumbuh optimal di tanah yang penuh kasih dan keteladanan.”</blockquote>
+                <p>
+                  Selamat datang di SMP Muhammadiyah 1 Jati Agung. Memasuki usia remaja awal adalah fase transisi krusial
+                  di mana rasa ingin tahu, kecerdasan moral, dan kesadaran sosial mulai berakar kuat. Kami meyakini bahwa
+                  pendidikan sejati bukan semata tentang tumpukan nilai kognitif, melainkan penempaan integritas budi
+                  pekerti yang selaras dengan kecintaan terhadap sesama dan alam semesta.
+                </p>
+              </div>
             </div>
-          </div>
+          </Reveal>
         </div>
       </section>
 
@@ -102,100 +105,108 @@ export default function HomePage() {
       {/* FASILITAS */}
       <section className="section" id="fasilitas">
         <div className="container">
-          <div className="section-head center">
-            <p className="eyebrow">Sarana &amp; Prasarana</p>
-            <h2 className="section-title">Fasilitas SMP Muhammadiyah 1 Jati Agung</h2>
-          </div>
-          <div className="grid-2">
-            {facilities.map((f) => (
-              <article className="card fac" key={f.title}>
-                <div className="ph" role="img" aria-label={f.alt}></div>
-                <h3>{f.title}</h3>
-                <p>{f.desc}</p>
-              </article>
-            ))}
-          </div>
+          <Reveal>
+            <div className="section-head center">
+              <p className="eyebrow">Sarana &amp; Prasarana</p>
+              <h2 className="section-title">Fasilitas SMP Muhammadiyah 1 Jati Agung</h2>
+            </div>
+            <div className="grid-2">
+              {facilities.map((f) => (
+                <article className="card fac" key={f.title}>
+                  <div className="ph" role="img" aria-label={f.alt}></div>
+                  <h3>{f.title}</h3>
+                  <p>{f.desc}</p>
+                </article>
+              ))}
+            </div>
+          </Reveal>
         </div>
       </section>
 
       {/* PRESTASI */}
       <section className="section section-alt" id="prestasi">
         <div className="container">
-          <div className="achv-panel">
-            <div className="achv-head">
-              <div>
-                <p className="eyebrow">Jejak Prestasi Siswa</p>
-                <h2 className="section-title">Kilau Kejuaraan Nasional &amp; Internasional</h2>
+          <Reveal>
+            <div className="achv-panel">
+              <div className="achv-head">
+                <div>
+                  <p className="eyebrow">Jejak Prestasi Siswa</p>
+                  <h2 className="section-title">Kilau Kejuaraan Nasional &amp; Internasional</h2>
+                </div>
+                <span className="chip">Tahun Ajaran 2026/2027</span>
               </div>
-              <span className="chip">Tahun Ajaran 2026/2027</span>
+              <div className="achv-grid">
+                {achievements.map((a) => (
+                  <article className="achv" key={a.title}>
+                    <div>
+                      <div className="achv-top"><span className="medal">🏅</span><span className="badge">{a.badge}</span></div>
+                      <h3>{a.title}</h3>
+                      <p>{a.desc}</p>
+                    </div>
+                    <small>Oleh: {a.by}</small>
+                  </article>
+                ))}
+              </div>
             </div>
-            <div className="achv-grid">
-              {achievements.map((a) => (
-                <article className="achv" key={a.title}>
-                  <div>
-                    <div className="achv-top"><span className="medal">🏅</span><span className="badge">{a.badge}</span></div>
-                    <h3>{a.title}</h3>
-                    <p>{a.desc}</p>
-                  </div>
-                  <small>Oleh: {a.by}</small>
-                </article>
-              ))}
-            </div>
-          </div>
+          </Reveal>
         </div>
       </section>
 
       {/* EKSKUL */}
       <section className="section" id="ekskul">
         <div className="container">
-          <div className="section-head">
-            <p className="eyebrow">Ekstrakurikuler</p>
-            <h2 className="section-title">Ekstrakurikuler Pilihan &amp; Bakat Minat</h2>
-          </div>
-          <div className="eskul-panel">
-            <div className="eskul-chips">
-              {eskul.map((e) => (
-                <div className="eskul-chip" key={e.name}>
-                  <div className="e">{e.e}</div>
-                  <b>{e.name}</b>
-                  <span>{e.sub}</span>
-                </div>
-              ))}
+          <Reveal>
+            <div className="section-head">
+              <p className="eyebrow">Ekstrakurikuler</p>
+              <h2 className="section-title">Ekstrakurikuler Pilihan &amp; Bakat Minat</h2>
             </div>
-            <div className="grid-2">
-              <article className="card fac">
-                <h3>🤖 Robotik &amp; AI</h3>
-                <p>Mengembangkan kemampuan STEM melalui proyek robotika dan IoT yang terstruktur.</p>
-              </article>
-              <article className="card fac">
-                <h3>🌱 Eco Hidroponik</h3>
-                <p>Praktik hidroponik dan konservasi tanaman untuk memupuk rasa hormat pada alam.</p>
-              </article>
+            <div className="eskul-panel">
+              <div className="eskul-chips">
+                {eskul.map((e) => (
+                  <div className="eskul-chip" key={e.name}>
+                    <div className="e">{e.e}</div>
+                    <b>{e.name}</b>
+                    <span>{e.sub}</span>
+                  </div>
+                ))}
+              </div>
+              <div className="grid-2">
+                <article className="card fac">
+                  <h3>🤖 Robotik &amp; AI</h3>
+                  <p>Mengembangkan kemampuan STEM melalui proyek robotika dan IoT yang terstruktur.</p>
+                </article>
+                <article className="card fac">
+                  <h3>🌱 Eco Hidroponik</h3>
+                  <p>Praktik hidroponik dan konservasi tanaman untuk memupuk rasa hormat pada alam.</p>
+                </article>
+              </div>
             </div>
-          </div>
+          </Reveal>
         </div>
       </section>
 
       {/* BERITA */}
       <section className="section section-alt" id="berita">
         <div className="container">
-          <div className="section-head">
-            <p className="eyebrow">Kabar Sekolah</p>
-            <h2 className="section-title">Berita &amp; Agenda Kegiatan Terkini</h2>
-          </div>
-          <div className="news-grid">
-            {news.map((n) => (
-              <article className="card news" key={n.title}>
-                <div className="ph" role="img" aria-label={n.alt}>{n.ic}</div>
-                <div className="news-body">
-                  <div className="news-meta"><time dateTime={n.date}>{n.dateLabel}</time>•<b>{n.tag}</b></div>
-                  <h3>{n.title}</h3>
-                  <p>{n.desc}</p>
-                  <Link className="more" href={n.href}>Baca Selengkapnya →</Link>
-                </div>
-              </article>
-            ))}
-          </div>
+          <Reveal>
+            <div className="section-head">
+              <p className="eyebrow">Kabar Sekolah</p>
+              <h2 className="section-title">Berita &amp; Agenda Kegiatan Terkini</h2>
+            </div>
+            <div className="news-grid">
+              {news.map((n) => (
+                <article className="card news" key={n.title}>
+                  <div className="ph" role="img" aria-label={n.alt}>{n.ic}</div>
+                  <div className="news-body">
+                    <div className="news-meta"><time dateTime={n.date}>{n.dateLabel}</time>•<b>{n.tag}</b></div>
+                    <h3>{n.title}</h3>
+                    <p>{n.desc}</p>
+                    <Link className="more" href={n.href}>Baca Selengkapnya →</Link>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </Reveal>
         </div>
       </section>
     </main>
