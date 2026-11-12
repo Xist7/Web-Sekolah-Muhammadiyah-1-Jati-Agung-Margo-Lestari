@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { GuruCarousel } from "@/components/guru-carousel";
 
 const stats = [
   { ic: "📅", value: "1993", label: "Sekolah berdiri sejak" },
@@ -97,6 +98,8 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      <GuruCarousel />
 
       {/* FASILITAS */}
       <section className="section" id="fasilitas">
