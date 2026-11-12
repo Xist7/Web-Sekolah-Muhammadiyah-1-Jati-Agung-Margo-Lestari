@@ -1,5 +1,5 @@
 import type { NextRequest } from "next/server";
-import { auth, isAdminEmail } from "@/auth";
+import { getCurrentAdmin } from "@/lib/admin/guard";
 import { db } from "@/lib/db";
 
 /** Sajikan file dari tabel Upload. Berkas pendaftar (isPublic=false) hanya untuk admin. */
@@ -9,8 +9,7 @@ export async function GET(_req: NextRequest, ctx: RouteContext<"/api/files/[id]"
   if (!file) return new Response("Not found", { status: 404 });
 
   if (!file.isPublic) {
-    const session = await auth();
-    if (!isAdminEmail(session?.user?.email)) return new Response("Forbidden", { status: 403 });
+    if (!(await getCurrentAdmin())) return new Response("Forbidden", { status: 403 });
   }
 
   return new Response(Buffer.from(file.data), {

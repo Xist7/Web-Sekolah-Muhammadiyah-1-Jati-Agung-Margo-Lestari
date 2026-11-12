@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, type FormEvent } from "react";
+import { submitRegistration } from "@/lib/ppdb/actions";
 import { UploadBox } from "./upload-box";
 
 type Field = HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement;
@@ -58,6 +59,7 @@ export function PpdbForm() {
   const [saveStatus, setSaveStatus] = useState("Draf belum disimpan");
   const [toast, setToast] = useState<string>();
   const [done, setDone] = useState<{ name: string; no: string }>();
+  const [sending, setSending] = useState(false);
 
   const showToast = (m: string) => {
     setToast(m);
@@ -153,10 +155,27 @@ export function PpdbForm() {
       return showToast(`${bad} isian perlu diperbaiki.`);
     }
 
-    // TODO (backend): kirim ke server, mis. server action / fetch('/api/ppdb') dengan new FormData(form) + files.foto / files.skl.
-    const name = form.querySelector<HTMLInputElement>("#nama")?.value ?? "";
-    setDone({ name, no: "PPDB-2026-" + String(Math.floor(Math.random() * 9000) + 1000) });
-    store.del();
+    // Kirim ke server (src/lib/ppdb/actions.ts) → tersimpan di Neon
+    const fd = new FormData(form);
+    fd.set("foto", files.foto!);
+    fd.set("skl", files.skl!);
+    setSending(true);
+    submitRegistration(fd)
+      .then((res) => {
+        if (res.ok) {
+          setDone({ name: res.name, no: res.regNumber });
+          store.del();
+          return;
+        }
+        showToast(res.message);
+        for (const [k, v] of Object.entries(res.fieldErrors ?? {})) {
+          if (!v?.[0]) continue;
+          if (k === "foto" || k === "skl") setFileErrors((fe) => ({ ...fe, [k]: v[0] }));
+          else setErr(k, v[0]);
+        }
+      })
+      .catch(() => showToast("Gagal terhubung ke server. Periksa koneksi lalu coba lagi."))
+      .finally(() => setSending(false));
   }
 
   function closeModal() {
@@ -407,13 +426,13 @@ export function PpdbForm() {
             <div data-upload="skl">
               <UploadBox
                 title="2. Surat Keterangan Lulus (SKL) / Keterangan Kelas 6"
-                hint={<>Dari Kepala Sekolah Dasar asal calon siswa, bertanda tangan basah &amp; cap stempel resmi. Format PDF atau foto JPG/PNG, maks. 5 MB.</>}
+                hint={<>Dari Kepala Sekolah Dasar asal calon siswa, bertanda tangan basah &amp; cap stempel resmi. Format PDF atau foto JPG/PNG, maks. 3 MB.</>}
                 icon="📄"
                 dropText="Tarik & letakkan berkas SKL di sini"
                 pickText="Pilih File SKL"
                 accept={["application/pdf", "image/jpeg", "image/png"]}
-                maxMb={5}
-                formatsLabel="PDF / JPG / PNG • Maks. 5 MB"
+                maxMb={3}
+                formatsLabel="PDF / JPG / PNG • Maks. 3 MB"
                 formatError="Format tidak didukung. Gunakan PDF, JPG, atau PNG."
                 file={files.skl}
                 error={fileErrors.skl}
@@ -428,7 +447,7 @@ export function PpdbForm() {
           <span className="status" aria-live="polite">{saveStatus}</span>
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
             <button type="button" className="btn btn-soft" onClick={saveDraft}>💾 Simpan Draf Formulir</button>
-            <button type="submit" className="btn btn-primary">Kirim &amp; Lanjutkan Unggah Dokumen →</button>
+            <button type="submit" className="btn btn-primary" disabled={sending}>{sending ? "Mengirim…" : <>Kirim &amp; Lanjutkan Unggah Dokumen →</>}</button>
           </div>
         </div>
       </form>

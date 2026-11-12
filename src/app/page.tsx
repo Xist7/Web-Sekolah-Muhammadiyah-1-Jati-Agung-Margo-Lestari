@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { GuruCarousel } from "@/components/guru-carousel";
 import { Reveal } from "@/components/reveal";
+import { formatTanggal } from "@/lib/berita/format";
+import { getPublishedPosts } from "@/lib/berita/queries";
 
 const stats = [
   { ic: "📅", value: "1993", label: "Sekolah berdiri sejak" },
@@ -29,13 +31,26 @@ const eskul = [
   { e: "🎶", name: "Seni & Musik", sub: "Ensembel & Ilustrasi" },
 ];
 
-const news = [
-  { ic: "🔭", alt: "Pameran sains", date: "2026-02-24", dateLabel: "24 Februari 2026", tag: "Prestasi", title: "Pameran Inovasi Sains & Gelar Karya P5 Siswa 2026 Memukau Pengunjung", desc: "Sebanyak 48 proyek sains ramah lingkungan buatan siswa kelas 7 dan 8 berhasil dipamerkan di hadapan orang tua dan masyarakat sekitar.", href: "#berita" },
-  { ic: "🌿", alt: "Duta lingkungan", date: "2026-02-18", dateLabel: "18 Februari 2026", tag: "Kegiatan", title: "Kunjungan Edukasi Duta Lingkungan: Bersama Melestarikan Pesisir", desc: "Anggota Eco-Club menanam 500 bibit mangrove dan melakukan riset kualitas ekosistem pesisir.", href: "#berita" },
-  { ic: "📋", alt: "Jadwal PPDB", date: "2026-02-10", dateLabel: "10 Februari 2026", tag: "Pengumuman PPDB", title: "Jadwal & Alur Seleksi PPDB Gelombang I Tahun Pelajaran 2026/2027", desc: "Simak timeline penting pembukaan pendaftaran jalur reguler, prestasi, dan beasiswa peduli bumi.", href: "/ppdb" },
-];
+// Beranda diperbarui otomatis saat admin menerbitkan berita; revalidate = cadangan tiap 5 menit
+export const revalidate = 300;
 
-export default function HomePage() {
+// Ikon pengganti bila berita belum punya gambar sampul
+const newsIcon = (category: string) =>
+  /prestasi|juara/i.test(category) ? "🏆" : /ppdb|pengumuman/i.test(category) ? "📋" : /kegiatan|agenda/i.test(category) ? "🌿" : "📰";
+
+export default async function HomePage() {
+  // Berita diambil dari panel admin (Pengaturan → Berita): 3 terbaru yang sudah terbit
+  const news = (await getPublishedPosts(3)).map((p) => ({
+    slug: p.slug,
+    cover: p.coverUrl,
+    ic: newsIcon(p.category),
+    date: p.publishedAt?.toISOString() ?? "",
+    dateLabel: formatTanggal(p.publishedAt),
+    tag: p.category,
+    title: p.title,
+    desc: p.subtitle,
+  }));
+
   return (
     <main id="beranda">
       {/* HERO (tidak dibungkus, langsung tampil) */}
@@ -195,17 +210,26 @@ export default function HomePage() {
             </div>
             <div className="news-grid">
               {news.map((n) => (
-                <article className="card news" key={n.title}>
-                  <div className="ph" role="img" aria-label={n.alt}>{n.ic}</div>
+                <article className="card news" key={n.slug}>
+                  <div className="ph" role="img" aria-label={n.title} style={n.cover ? { padding: 0, overflow: "hidden" } : undefined}>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    {n.cover ? <img src={n.cover} alt="" loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : n.ic}
+                  </div>
                   <div className="news-body">
-                    <div className="news-meta"><time dateTime={n.date}>{n.dateLabel}</time>•<b>{n.tag}</b></div>
+                    <div className="news-meta"><time dateTime={n.date}>{n.dateLabel}</time>{n.tag && <>•<b>{n.tag}</b></>}</div>
                     <h3>{n.title}</h3>
                     <p>{n.desc}</p>
-                    <Link className="more" href={n.href}>Baca Selengkapnya →</Link>
+                    <Link className="more" href={`/berita/${n.slug}`}>Baca Selengkapnya →</Link>
                   </div>
                 </article>
               ))}
             </div>
+            {news.length === 0 && <p style={{ color: "var(--muted-2)" }}>Belum ada berita yang diterbitkan.</p>}
+            {news.length > 0 && (
+              <p style={{ marginTop: 20, textAlign: "center" }}>
+                <Link className="btn btn-soft" href="/berita">Lihat Semua Berita →</Link>
+              </p>
+            )}
           </Reveal>
         </div>
       </section>

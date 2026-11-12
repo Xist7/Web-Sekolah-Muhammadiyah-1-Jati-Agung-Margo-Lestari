@@ -1,0 +1,38 @@
+/* Halaman berita (/berita, /berita/<slug>) — memakai token warna website (--primary, --mint, dst.) */
+.berita-wrap { padding: 32px 0 72px; }
+.berita-head { margin-bottom: 28px; }
+.berita-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+@media (max-width: 900px) { .berita-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 600px) { .berita-grid { grid-template-columns: 1fr; } }
+.berita-card { display: flex; flex-direction: column; overflow: hidden; background: #fff; border-radius: 16px; box-shadow: var(--shadow); transition: transform .2s, box-shadow .2s; }
+.berita-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); }
+.berita-card .cover { aspect-ratio: 16/9; background: linear-gradient(135deg, var(--mint), #8fbfae); display: grid; place-items: center; font-size: 40px; overflow: hidden; }
+.berita-card .cover img { width: 100%; height: 100%; object-fit: cover; }
+.berita-card .body { padding: 16px 18px 20px; display: flex; flex-direction: column; gap: 6px; flex: 1; }
+.berita-meta { font-size: 12px; color: var(--muted-2); display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.berita-meta b { color: var(--primary); }
+.berita-card h2 { font-size: 18px; line-height: 1.35; color: var(--primary); }
+.berita-card p { font-size: 14px; color: var(--muted); display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.berita-empty { text-align: center; padding: 64px 16px; color: var(--muted-2); }
+
+.post { max-width: 760px; margin: 0 auto; }
+.post-back { display: inline-block; font-size: 13px; color: var(--muted-2); margin-bottom: 16px; }
+.post-back:hover { color: var(--primary); }
+.post h1 { font-size: clamp(26px, 4.5vw, 40px); line-height: 1.2; color: var(--primary); letter-spacing: -.5px; margin: 10px 0 12px; }
+.post .lead { font-size: 18px; color: var(--muted); margin-bottom: 20px; }
+.post-cover { border-radius: 20px; overflow: hidden; margin: 24px 0 32px; box-shadow: var(--shadow-lg); }
+.post-cover img { width: 100%; height: auto; }
+.post-share { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 40px; padding-top: 20px; border-top: 1px solid var(--line); font-size: 13px; }
+.post-share a, .post-share button { border: 1px solid var(--line); border-radius: 9999px; padding: 6px 14px; background: #fff; }
+
+/* Isi berita (juga dipakai pratinjau di panel admin) */
+.prose-berita { font-size: 17px; line-height: 1.8; color: var(--text, #1e1b18); }
+.prose-berita > * + * { margin-top: 1.1em; }
+.prose-berita h2 { font-size: 1.4em; line-height: 1.3; color: var(--primary, #00482f); margin-top: 1.6em; font-weight: 700; }
+.prose-berita h3 { font-size: 1.15em; color: var(--primary, #00482f); margin-top: 1.4em; font-weight: 700; }
+.prose-berita ul { list-style: disc; padding-left: 1.4em; }
+.prose-berita ol { list-style: decimal; padding-left: 1.4em; }
+.prose-berita blockquote { border-left: 4px solid var(--primary-2, #006241); padding: 4px 0 4px 16px; color: var(--muted, #3f4943); font-style: italic; }
+.prose-berita a { color: var(--primary-2, #006241); text-decoration: underline; }
+.prose-berita figure img { width: 100%; border-radius: 14px; }
+.prose-berita figcaption { font-size: 13px; color: var(--muted-2, #4f625d); text-align: center; margin-top: 6px; }
