@@ -36,7 +36,7 @@ const schema = z.object({
 // Gambar sudah dikompres di browser (JPEG ~60%); PDF tidak bisa dikompres, jadi dibatasi.
 const FILE_RULES = {
   foto: { types: ["image/jpeg", "image/png", "image/webp"], max: 2 * 1024 * 1024, label: "Pas foto" },
-  skl: { types: ["application/pdf", "image/jpeg", "image/png", "image/webp"], max: 2 * 1024 * 1024, label: "SKL" },
+  skl: { types: ["application/pdf", "image/jpeg", "image/png", "image/webp"], max: 3 * 1024 * 1024, label: "SKL" },
 } as const;
 
 function readFile(formData: FormData, key: keyof typeof FILE_RULES) {
@@ -44,7 +44,7 @@ function readFile(formData: FormData, key: keyof typeof FILE_RULES) {
   const rule = FILE_RULES[key];
   if (!(f instanceof File) || f.size === 0) return { error: `${rule.label} wajib diunggah.` };
   if (!(rule.types as readonly string[]).includes(f.type)) return { error: `Format ${rule.label} tidak didukung.` };
-  if (f.size > rule.max) return { error: `${rule.label} melebihi 2 MB.` };
+  if (f.size > rule.max) return { error: `${rule.label} melebihi ${rule.max / 1048576} MB.` };
   return { file: f };
 }
 

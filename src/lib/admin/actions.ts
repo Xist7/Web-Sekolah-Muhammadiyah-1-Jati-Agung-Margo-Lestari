@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { Prisma } from "@/generated/prisma/client";
+import { logAudit } from "@/lib/audit";
 import { db } from "@/lib/db";
 import { requireAdmin, UnauthorizedError } from "./guard";
 import {
@@ -32,7 +33,7 @@ function adminAction<S extends z.ZodType>(
 ) {
   return async (_prev: ActionResult | null, formData: FormData): Promise<ActionResult> => {
     try {
-      await requireAdmin();
+      const me = await requireAdmin();
       const parsed = schema.safeParse(Object.fromEntries(formData));
       if (!parsed.success) {
         return {
@@ -42,6 +43,7 @@ function adminAction<S extends z.ZodType>(
         };
       }
       await run(parsed.data);
+      await logAudit(me, "UPDATE", successMessage.replace(/.$/, "").toLowerCase());
       revalidatePath("/", "layout");
       return { ok: true, message: successMessage };
     } catch (e) {
