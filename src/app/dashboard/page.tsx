@@ -1,4 +1,5 @@
 import { getDashboardStats } from "@/lib/admin/queries";
+import { PpdbToggle } from "./ppdb-toggle";
 
 export const dynamic = "force-dynamic";
 
@@ -28,6 +29,8 @@ export default async function DashboardPage() {
         </p>
       </div>
 
+      <PpdbToggle isOpen={!!ppdb?.isOpen} />
+
       <section className="grid grid-cols-2 gap-4 md:grid-cols-4">
         {stats.map((s) => (
           <div key={s.label} className="rounded-xl bg-white p-5 shadow-sm ring-1 ring-slate-100">
@@ -46,20 +49,27 @@ export default async function DashboardPage() {
             <table className="w-full text-left text-sm">
               <thead className="bg-slate-50 text-slate-500">
                 <tr>
+                  <th className="px-5 py-3 font-medium">No. Daftar</th>
                   <th className="px-5 py-3 font-medium">Nama</th>
                   <th className="px-5 py-3 font-medium">Asal Sekolah</th>
                   <th className="px-5 py-3 font-medium">No. HP Ortu</th>
                   <th className="px-5 py-3 font-medium">Tanggal</th>
+                  <th className="px-5 py-3 font-medium">Berkas</th>
                   <th className="px-5 py-3 font-medium">Status</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {latest.map((r) => (
                   <tr key={r.id}>
+                    <td className="px-5 py-3 font-mono text-xs text-slate-500">{r.regNumber}</td>
                     <td className="px-5 py-3 font-medium text-slate-700">{r.fullName}</td>
                     <td className="px-5 py-3 text-slate-600">{r.previousSchool}</td>
                     <td className="px-5 py-3 text-slate-600">{r.parentPhone}</td>
                     <td className="px-5 py-3 text-slate-600">{r.createdAt.toLocaleDateString("id-ID")}</td>
+                    <td className="space-x-2 px-5 py-3 whitespace-nowrap">
+                      {r.photoId && <a className="text-emerald-700 underline" href={`/api/files/${r.photoId}`} target="_blank">Foto</a>}
+                      {r.sklId && <a className="text-emerald-700 underline" href={`/api/files/${r.sklId}`} target="_blank">SKL</a>}
+                    </td>
                     <td className="px-5 py-3">
                       <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${statusClass[r.status]}`}>
                         {statusLabel[r.status]}

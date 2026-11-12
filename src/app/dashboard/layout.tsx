@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { LogoutButton } from "@/components/auth/buttons";
+import { DashboardNav } from "./nav";
 
 export const metadata: Metadata = { title: "Dashboard Admin" };
 
@@ -20,6 +21,7 @@ export default async function DashboardLayout({ children }: LayoutProps<"/dashbo
         </div>
         <LogoutButton />
       </div>
+      <DashboardNav />
       {children}
     </div>
   );

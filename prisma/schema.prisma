@@ -65,6 +65,7 @@ enum RegistrationStatus {
 // Data pendaftar PPDB (F-04, F-12)
 model Registration {
   id             String             @id @default(cuid())
+  regNumber      String             @unique // mis. PPDB-2026-0001
   fullName       String
   gender         String // L / P
   birthPlace     String
@@ -74,7 +75,14 @@ model Registration {
   parentName     String
   parentPhone    String
   address        String
-  status         RegistrationStatus @default(PENDING)
+  email          String             @default("")
+  parentRelation String             @default("")
+  parentJob      String             @default("")
+  program        String             @default("")
+  infoSource     String             @default("")
+  photoId        String? // -> Upload.id (pas foto)
+  sklId          String? // -> Upload.id (SKL)
+  status        RegistrationStatus @default(PENDING)
   notes          String             @default("")
   createdAt      DateTime           @default(now())
 }
@@ -85,4 +93,22 @@ model GalleryItem {
   description String   @default("")
   imageUrl    String
   createdAt   DateTime @default(now())
+}
+
+// Konten halaman publik yang bisa diedit admin (teks, foto, daftar poin). key: header | home | ppdb | footer
+model SiteContent {
+  key       String   @id
+  data      Json
+  updatedAt DateTime @updatedAt
+}
+
+// File yang diunggah (gambar sudah dikompres di browser). isPublic=false untuk berkas pendaftar (hanya admin)
+model Upload {
+  id        String   @id @default(cuid())
+  filename  String
+  mime      String
+  size      Int
+  isPublic  Boolean  @default(true)
+  data      Bytes
+  createdAt DateTime @default(now())
 }

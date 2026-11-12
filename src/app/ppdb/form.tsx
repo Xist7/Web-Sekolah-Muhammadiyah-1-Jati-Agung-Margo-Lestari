@@ -20,7 +20,12 @@ const msgs: Record<string, string> = {
   ortu: "Isi nama orang tua / wali.",
   hub: "Pilih hubungan dengan calon siswa.",
   wa: "Gunakan nomor WhatsApp format 08xx.",
-  alamat: "Isi alamat domisili lengkap.",
+  jalan: "Isi nama jalan / dusun.",
+  rt: "Isi RT (angka).",
+  rw: "Isi RW (angka).",
+  desa: "Isi desa / kelurahan.",
+  kec: "Isi kecamatan.",
+  kab: "Isi kabupaten / kota.",
 };
 
 const infoOptions = ["Sosial Media", "Keluarga", "Website", "Saudara", "Teman", "Guru", "Tetangga"];
@@ -65,7 +70,7 @@ export function PpdbForm() {
     let ok = el.checkValidity();
     if (el.id === "nisn" && el.value.length !== 10) ok = false;
     if (el.id === "nama" && el.value.trim().length < 3) ok = false;
-    if (el.id === "alamat" && el.value.trim().length < 10) ok = false;
+    if (el.id === "jalan" && el.value.trim().length < 3) ok = false;
     setErr(el.id, ok ? "" : msgs[el.id] || "Kolom ini wajib diisi.");
     return ok;
   }
@@ -284,27 +289,68 @@ export function PpdbForm() {
                 <option>Petani / Pekebun</option><option>Guru / Dosen</option><option>Lainnya</option>
               </select>
             </div>
-            <div className={fieldClass("alamat", " full")}>
-              <label htmlFor="alamat">Alamat Lengkap Domisili Saat Ini<span className="req">*</span></label>
-              <textarea
-                {...fieldProps("alamat")}
-                placeholder="Contoh: Jl. Hadi Subroto No. 12, RT 04 / RW 02, Desa Margo Lestari, Kec. Jati Agung, Kab. Lampung Selatan"
+            <div className={fieldClass("jalan", " full")}>
+              <label htmlFor="jalan">Jalan / Dusun<span className="req">*</span></label>
+              <input {...fieldProps("jalan")} type="text" placeholder="Contoh: Jl. Hadi Subroto No. 12" required />
+              <span className="err">{errors.jalan}</span>
+              </div>
+            <div className={fieldClass("rt")}>
+              <label htmlFor="rt">RT<span className="req">*</span></label>
+              <input
+                {...fieldProps("rt")}
+                type="text"
+                inputMode="numeric"
+                maxLength={3}
+                placeholder="04"
                 required
+                pattern="\d{1,3}"
+                onInput={(e) => {
+                  const el = e.currentTarget;
+                  el.value = el.value.replace(/\D/g, "");
+                  if (errors.rt) checkField(el);
+                }}
               />
-              <span className="err">{errors.alamat}</span>
+              <span className="err">{errors.rt}</span>
             </div>
+            <div className={fieldClass("rw")}>
+              <label htmlFor="rw">RW<span className="req">*</span></label>
+              <input
+                {...fieldProps("rw")}
+                type="text"
+                inputMode="numeric"
+                maxLength={3}
+                placeholder="02"
+                required
+                pattern="\d{1,3}"
+                onInput={(e) => {
+                  const el = e.currentTarget;
+                  el.value = el.value.replace(/\D/g, "");
+                  if (errors.rw) checkField(el);
+                }}
+              />
+              <span className="err">{errors.rw}</span>
+            </div>
+          <div className={fieldClass("desa")}>
+  <label htmlFor="desa">Desa / Kelurahan<span className="req">*</span></label>
+  <input {...fieldProps("desa")} type="text" placeholder="Contoh: Margo Lestari" required />
+  <span className="err">{errors.desa}</span>
+          </div>
+          <div className={fieldClass("kec")}>
+            <label htmlFor="kec">Kecamatan<span className="req">*</span></label>
+            <input {...fieldProps("kec")} type="text" placeholder="Contoh: Jati Agung" required />
+            <span className="err">{errors.kec}</span>
+          </div>
+          <div className={fieldClass("kab", " full")}>
+            <label htmlFor="kab">Kabupaten / Kota<span className="req">*</span></label>
+            <input {...fieldProps("kab")} type="text" placeholder="Contoh: Lampung Selatan" required />
+            <span className="err">{errors.kab}</span>
+          </div>
           </div>
         </section>
 
         {/* 4. Info PPDB */}
         <section className="card form-card" aria-labelledby="h-info">
           <header><div className="t"><span className="ic" aria-hidden="true">📣</span><h2 id="h-info">Informasi PPDB</h2></div></header>
-          <div className="fields" style={{ paddingBottom: 0 }}>
-            <div className="field full">
-              <label htmlFor="program">Program yang Diminati</label>
-              <select id="program" name="program"><option>Kurikulum Merdeka Plus</option><option>Kurikulum Merdeka Reguler</option></select>
-            </div>
-          </div>
           <fieldset style={{ border: 0, padding: 0, minInlineSize: 0 }}>
             <legend className="sr-only">Dari mana Anda mengetahui PPDB ini?</legend>
             <p style={{ padding: "20px 24px 0", fontSize: 14, fontWeight: 600 }}>Dari mana Anda mengetahui PPDB ini?</p>
