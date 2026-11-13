@@ -16,10 +16,8 @@ const facilities = [
 ];
 
 const achievements = [
-  { badge: "Emas", title: "OSN IPA & Matematika", desc: "Medali Emas Olimpiade Sains Nasional Tingkat Provinsi Lampung & Finalis Nasional.", by: "Tim Sains Junior 2024" },
-  { badge: "Juara 1", title: "National Robotics Olympiad", desc: "Kategori Autonomous Eco-Sorting Robot (Robot Pemilah Sampah Cerdas) di ITB Bandung.", by: "Tim Robotik Sekolah" },
-  { badge: "Best Speaker", title: "English Debate", desc: "Penghargaan Pembicara Terbaik & Juara Umum English Parliamentary Debate Junior Championship.", by: "Amanda Kirana (Kelas 8)" },
-  { badge: "Juara 2", title: "FLS2N Seni & Musik", desc: "Festival dan Lomba Seni Siswa Nasional cabang Ansambel Musik Campuran Nusantara.", by: "Ansambel Musik Sekolah" },
+  { badge: "-", title: "-", desc: "-", by: "-" },
+  { badge: "-", title: "-", desc: "-", by: "-" },
 ];
 
 const eskul = [
@@ -147,14 +145,13 @@ export default async function HomePage() {
             <div className="achv-panel">
               <div className="achv-head">
                 <div>
-                  <p className="eyebrow">Jejak Prestasi Siswa</p>
-                  <h2 className="section-title">Kilau Kejuaraan Nasional &amp; Internasional</h2>
+                  <h2 className="section-title">Prestasi Siswa</h2>
                 </div>
                 <span className="chip">Tahun Ajaran 2026/2027</span>
               </div>
               <div className="achv-grid">
-                {achievements.map((a) => (
-                  <article className="achv" key={a.title}>
+                {achievements.map((a, i) => (
+                    <article className="achv" key={i}>
                     <div>
                       <div className="achv-top"><span className="medal">🏅</span><span className="badge">{a.badge}</span></div>
                       <h3>{a.title}</h3>
