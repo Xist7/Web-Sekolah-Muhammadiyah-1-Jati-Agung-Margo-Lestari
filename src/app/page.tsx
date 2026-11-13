@@ -115,7 +115,9 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <GuruCarousel />
+      <Reveal>
+        <GuruCarousel />
+      </Reveal>
 
       {/* FASILITAS */}
       <section className="section" id="fasilitas">
