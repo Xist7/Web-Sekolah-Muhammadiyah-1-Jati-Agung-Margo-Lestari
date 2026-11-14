@@ -17,7 +17,11 @@ export type FieldDef =
   | { k: string; label: string; type: "media"; help?: string } // Media
   | { k: string; label: string; type: "strings"; help?: string; itemLabel?: string } // string[]
   /** addable: true = admin bisa tambah/hapus/urutkan poin; false = hanya edit isi poin yang ada */
-  | { k: string; label: string; type: "list"; help?: string; itemLabel: string; fields: FieldDef[]; titleKey?: string; addable?: boolean };
+  | {
+      k: string; label: string; type: "list"; help?: string; itemLabel: string; fields: FieldDef[]; titleKey?: string; addable?: boolean;
+      /** Penanda "pemimpin" (mis. kepala sekolah): kolom boolean di tiap item, hanya boleh 1 yang true. Diatur lewat menu ⋮ */
+      leader?: { key: string; label: string };
+    };
 
 export type SectionGroup = "beranda" | "global";
 
@@ -111,19 +115,13 @@ const sambutan = section({
   icon: "💬",
   group: "beranda",
   anchor: "program",
-  description: "Foto kepala sekolah, kutipan, dan paragraf sambutan / visi misi.",
+  description: "Kutipan dan paragraf sambutan / visi misi. Foto & nama kepala sekolah diatur di Guru & Staf (menu ⋮ → Jadikan Kepala Sekolah).",
   fields: [
-    { k: "foto", label: "Foto Kepala Sekolah", type: "image", help: "Kosongkan untuk memakai ikon 👤." },
-    { k: "nama", label: "Nama Kepala Sekolah", type: "text" },
-    { k: "jabatan", label: "Jabatan", type: "text" },
     { k: "eyebrow", label: "Judul Kecil", type: "text" },
     { k: "kutipan", label: "Kutipan", type: "textarea" },
     { k: "isi", label: "Isi Sambutan", type: "textarea", help: "Pisahkan paragraf dengan baris kosong." },
   ],
   defaults: {
-    foto: "",
-    nama: "Julianto",
-    jabatan: "Kepala Sekolah SMP Muhammadiyah 1 Jati Agung",
     eyebrow: "Visi dan Misi Sekolah",
     kutipan: "“Setiap anak adalah bibit unggul yang bertumbuh optimal di tanah yang penuh kasih dan keteladanan.”",
     isi: "Selamat datang di SMP Muhammadiyah 1 Jati Agung. Memasuki usia remaja awal adalah fase transisi krusial di mana rasa ingin tahu, kecerdasan moral, dan kesadaran sosial mulai berakar kuat. Kami meyakini bahwa pendidikan sejati bukan semata tentang tumpukan nilai kognitif, melainkan penempaan integritas budi pekerti yang selaras dengan kecintaan terhadap sesama dan alam semesta.",
@@ -135,13 +133,15 @@ const guru = section({
   icon: "👩‍🏫",
   group: "beranda",
   anchor: "guru",
-  description: "Carousel tenaga pendidik: foto, nama, dan mata pelajaran.",
+  description: "Daftar guru & staf: foto, nama, mata pelajaran. Kepala sekolah ditandai lewat menu ⋮ (hanya boleh 1).",
   fields: [
     { k: "eyebrow", label: "Judul Kecil", type: "text" },
     { k: "judul", label: "Judul", type: "text" },
     { k: "subjudul", label: "Subjudul", type: "text" },
     {
       k: "daftar", label: "Daftar Guru", type: "list", itemLabel: "Guru", titleKey: "nama", addable: true,
+      leader: { key: "kepalaSekolah", label: "Kepala Sekolah" },
+      help: "Geser ⠿ untuk mengubah urutan. Kepala sekolah tampil di bagian Sambutan beranda.",
       fields: [
         { k: "foto", label: "Foto", type: "image", help: "Kosongkan untuk memakai ikon 👤." },
         { k: "nama", label: "Nama", type: "text" },
@@ -154,16 +154,17 @@ const guru = section({
     judul: "Tenaga Pendidik",
     subjudul: "Dibimbing oleh guru-guru profesional yang ahli di bidangnya.",
     daftar: [
-      { foto: "", nama: "Sumaryanto", mapel: "PJOK, Seni dan Prakarya" },
-      { foto: "", nama: "Alveno Danar Fadill", mapel: "Bahasa Arab, Tahfidz Al-Qur'an" },
-      { foto: "", nama: "Fiki Riyanto", mapel: "Hizbul Wathan" },
-      { foto: "", nama: "Mia Noviyanti, S.Pd", mapel: "Matematika dan Informatika" },
-      { foto: "", nama: "Siti Wardani", mapel: "Aqidah Akhlak" },
-      { foto: "", nama: "Kuswati", mapel: "IPA dan PAk" },
-      { foto: "", nama: "Duwi Supriyanti", mapel: "IPS" },
-      { foto: "", nama: "RAHMAT, S.Pd", mapel: "Bahasa Indonesia" },
-      { foto: "", nama: "Halusah", mapel: "Bahasa Inggris" },
-      { foto: "", nama: "Supono", mapel: "PAI dan PKN" },
+      { foto: "", nama: "Julianto", mapel: "Kepala Sekolah SMP Muhammadiyah 1 Jati Agung", kepalaSekolah: true },
+      { foto: "/guru/sumaryanto.jpg", nama: "Sumaryanto", mapel: "PJOK, Seni dan Prakarya", kepalaSekolah: false },
+      { foto: "/guru/alveno.jpg", nama: "Alveno Danar Fadill", mapel: "Bahasa Arab, Tahfidz Al-Qur'an", kepalaSekolah: false },
+      { foto: "/guru/fiki.jpg", nama: "Fiki Riyanto", mapel: "Hizbul Wathan", kepalaSekolah: false },
+      { foto: "/guru/mia.jpg", nama: "Mia Noviyanti, S.Pd", mapel: "Matematika dan Informatika", kepalaSekolah: false },
+      { foto: "/guru/siti.jpg", nama: "Siti Wardani", mapel: "Aqidah Akhlak", kepalaSekolah: false },
+      { foto: "/guru/kuswati.jpg", nama: "Kuswati", mapel: "IPA dan PAk", kepalaSekolah: false },
+      { foto: "/guru/duwi.jpg", nama: "Duwi Supriyanti", mapel: "IPS", kepalaSekolah: false },
+      { foto: "/guru/rahmat.jpg", nama: "RAHMAT, S.Pd", mapel: "Bahasa Indonesia", kepalaSekolah: false },
+      { foto: "/guru/halusah.jpg", nama: "Halusah", mapel: "Bahasa Inggris", kepalaSekolah: false },
+      { foto: "/guru/supono.jpg", nama: "Supono", mapel: "PAI dan PKN", kepalaSekolah: false },
     ],
   },
 });
@@ -201,13 +202,13 @@ const prestasi = section({
   icon: "🏆",
   group: "beranda",
   anchor: "prestasi",
-  description: "Kartu prestasi siswa (edit isi tiap kartu).",
+  description: "Kartu prestasi siswa. Bisa tambah / hapus; jumlah kartu menyesuaikan.",
   fields: [
-    { k: "eyebrow", label: "Judul Kecil", type: "text" },
+    { k: "eyebrow", label: "Judul Kecil", type: "text", help: "Boleh dikosongkan." },
     { k: "judul", label: "Judul", type: "text" },
     { k: "chip", label: "Label Kanan (mis. Tahun Ajaran)", type: "text" },
     {
-      k: "daftar", label: "Daftar Prestasi", type: "list", itemLabel: "Prestasi", titleKey: "judul",
+      k: "daftar", label: "Daftar Prestasi", type: "list", itemLabel: "Prestasi", titleKey: "judul", addable: true,
       fields: [
         { k: "media", label: "Ikon / Gambar", type: "media" },
         { k: "lencana", label: "Lencana (mis. Juara 1)", type: "text" },
@@ -218,14 +219,12 @@ const prestasi = section({
     },
   ],
   defaults: {
-    eyebrow: "Jejak Prestasi Siswa",
-    judul: "Kilau Kejuaraan Nasional & Internasional",
+    eyebrow: "",
+    judul: "Prestasi Siswa",
     chip: "Tahun Ajaran 2026/2027",
     daftar: [
-      { media: emoji("🏅"), lencana: "Emas", judul: "OSN IPA & Matematika", deskripsi: "Medali Emas Olimpiade Sains Nasional Tingkat Provinsi Lampung & Finalis Nasional.", oleh: "Tim Sains Junior 2024" },
-      { media: emoji("🏅"), lencana: "Juara 1", judul: "National Robotics Olympiad", deskripsi: "Kategori Autonomous Eco-Sorting Robot (Robot Pemilah Sampah Cerdas) di ITB Bandung.", oleh: "Tim Robotik Sekolah" },
-      { media: emoji("🏅"), lencana: "Best Speaker", judul: "English Debate", deskripsi: "Penghargaan Pembicara Terbaik & Juara Umum English Parliamentary Debate Junior Championship.", oleh: "Amanda Kirana (Kelas 8)" },
-      { media: emoji("🏅"), lencana: "Juara 2", judul: "FLS2N Seni & Musik", deskripsi: "Festival dan Lomba Seni Siswa Nasional cabang Ansambel Musik Campuran Nusantara.", oleh: "Ansambel Musik Sekolah" },
+      { media: emoji("🏅"), lencana: "-", judul: "-", deskripsi: "-", oleh: "-" },
+      { media: emoji("🏅"), lencana: "-", judul: "-", deskripsi: "-", oleh: "-" },
     ],
   },
 });
@@ -235,7 +234,7 @@ const ekskul = section({
   icon: "⚽",
   group: "beranda",
   anchor: "ekskul",
-  description: "Kartu kecil ekskul (bisa tambah / hapus) dan kartu sorotan.",
+  description: "Daftar ekskul. Pengunjung bisa klik salah satu ekskul untuk melihat penjelasannya.",
   fields: [
     { k: "eyebrow", label: "Judul Kecil", type: "text" },
     { k: "judul", label: "Judul", type: "text" },
@@ -245,14 +244,7 @@ const ekskul = section({
         { k: "media", label: "Ikon / Gambar", type: "media" },
         { k: "nama", label: "Nama Ekskul", type: "text" },
         { k: "keterangan", label: "Keterangan Singkat", type: "text" },
-      ],
-    },
-    {
-      k: "sorotan", label: "Kartu Sorotan", type: "list", itemLabel: "Sorotan", titleKey: "judul",
-      fields: [
-        { k: "media", label: "Ikon / Gambar", type: "media" },
-        { k: "judul", label: "Judul", type: "text" },
-        { k: "deskripsi", label: "Deskripsi", type: "textarea" },
+        { k: "deskripsi", label: "Penjelasan (muncul saat ekskul diklik)", type: "textarea" },
       ],
     },
   ],
@@ -260,16 +252,12 @@ const ekskul = section({
     eyebrow: "Ekstrakurikuler",
     judul: "Ekstrakurikuler Pilihan & Bakat Minat",
     daftar: [
-      { media: emoji("🤖"), nama: "Robotik & AI", keterangan: "STEM Terapan" },
-      { media: emoji("🎤"), nama: "English Debate", keterangan: "Model UN & Speech" },
-      { media: emoji("🌱"), nama: "Eco Hidroponik", keterangan: "Urban Farming Club" },
-      { media: emoji("🥋"), nama: "Taekwondo & Silat", keterangan: "Bela Diri Prestasi" },
-      { media: emoji("🏀"), nama: "Basket & Futsal", keterangan: "Lapangan Standar FIBA" },
-      { media: emoji("🎶"), nama: "Seni & Musik", keterangan: "Ensembel & Ilustrasi" },
-    ],
-    sorotan: [
-      { media: emoji("🤖"), judul: "Robotik & AI", deskripsi: "Mengembangkan kemampuan STEM melalui proyek robotika dan IoT yang terstruktur." },
-      { media: emoji("🌱"), judul: "Eco Hidroponik", deskripsi: "Praktik hidroponik dan konservasi tanaman untuk memupuk rasa hormat pada alam." },
+      { media: emoji("🤖"), nama: "Robotik & AI", keterangan: "STEM Terapan", deskripsi: "Mengembangkan kemampuan STEM melalui proyek robotika dan IoT yang terstruktur." },
+      { media: emoji("🎤"), nama: "English Debate", keterangan: "Model UN & Speech", deskripsi: "Melatih kepercayaan diri dan kemampuan berbahasa Inggris lewat debat, pidato, dan simulasi sidang PBB." },
+      { media: emoji("🌱"), nama: "Eco Hidroponik", keterangan: "Urban Farming Club", deskripsi: "Praktik hidroponik dan konservasi tanaman untuk memupuk rasa hormat pada alam." },
+      { media: emoji("🥋"), nama: "Taekwondo & Silat", keterangan: "Bela Diri Prestasi", deskripsi: "Membangun disiplin, ketangguhan fisik, dan sportivitas melalui latihan bela diri yang terarah." },
+      { media: emoji("🏀"), nama: "Basket & Futsal", keterangan: "Lapangan Standar FIBA", deskripsi: "Mengasah kerja sama tim dan kebugaran lewat latihan rutin serta pertandingan persahabatan." },
+      { media: emoji("🎶"), nama: "Seni & Musik", keterangan: "Ensembel & Ilustrasi", deskripsi: "Wadah menyalurkan kreativitas lewat ensembel musik, menggambar, dan ilustrasi." },
     ],
   },
 });
@@ -345,16 +333,16 @@ const ppdb = section({
   description: "Teks di halaman pendaftaran (/ppdb), termasuk pesan saat pendaftaran ditutup.",
   fields: [
     { k: "breadcrumb", label: "Judul Breadcrumb", type: "text" },
-    { k: "tickerBuka", label: "Info Atas (saat dibuka)", type: "text" },
-    { k: "tenggat", label: "Tenggat Pendaftaran", type: "text" },
+    { k: "tickerBuka", label: "Info Atas (saat dibuka)", type: "text", help: "Diikuti otomatis oleh tanggal tutup yang diisi saat membuka pendaftaran (Overview → Buka Pendaftaran)." },
+    { k: "tickerBukaTanpaBatas", label: "Info Atas (dibuka, tanpa tanggal tutup)", type: "text", help: "Hanya untuk data lama yang dibuka sebelum ada tanggal tutup." },
     { k: "tickerTutup", label: "Info Atas (saat ditutup)", type: "text" },
     { k: "judulTutup", label: "Judul Saat Ditutup", type: "text" },
     { k: "pesanTutup", label: "Pesan Saat Ditutup", type: "textarea" },
   ],
   defaults: {
     breadcrumb: "Pendaftaran Siswa Baru (PPDB 2026/2027)",
-    tickerBuka: "Pendaftaran Gelombang 1 dibuka hingga",
-    tenggat: "28 Februari 2027",
+    tickerBuka: "Pendaftaran dibuka hingga",
+    tickerBukaTanpaBatas: "Pendaftaran sedang dibuka",
     tickerTutup: "Pendaftaran saat ini ditutup",
     judulTutup: "Pendaftaran Sedang Ditutup",
     pesanTutup: "Terima kasih atas minat Anda. Pendaftaran siswa baru saat ini belum dibuka / sudah ditutup. Pantau informasi terbaru atau hubungi panitia melalui WhatsApp.",

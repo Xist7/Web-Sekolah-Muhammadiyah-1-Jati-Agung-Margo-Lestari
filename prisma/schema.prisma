@@ -48,6 +48,8 @@ model Teacher {
 model PpdbInfo {
   id           Int      @id @default(1)
   isOpen       Boolean  @default(false)
+  closesAt     DateTime? // batas pendaftaran; lewat dari ini = otomatis tutup
+  closesAtTime Boolean  @default(false) // true = admin mengisi jam; false = tutup setelah tanggal itu berakhir
   academicYear String   @default("")
   schedule     String   @default("") // satu item per baris
   requirements String   @default("")
@@ -85,6 +87,18 @@ model Registration {
   status        RegistrationStatus @default(PENDING)
   notes          String             @default("")
   createdAt      DateTime           @default(now())
+
+  @@index([nisn])
+}
+
+// Catatan percobaan kirim formulir PPDB untuk pembatasan per IP (anti pendaftaran massal).
+// ipHash = sha256(IP + secret), IP asli tidak disimpan.
+model SubmitAttempt {
+  id        String   @id @default(cuid())
+  ipHash    String
+  createdAt DateTime @default(now())
+
+  @@index([ipHash, createdAt])
 }
 
 model GalleryItem {
@@ -109,6 +123,7 @@ model Upload {
   mime      String
   size      Int
   isPublic  Boolean  @default(true)
+  uploadedBy String  @default("") // nama/email admin pengunggah (kosong = pendaftar)
   data      Bytes
   createdAt DateTime @default(now())
 

@@ -7,6 +7,7 @@ import { contentDefaults, isContentKey, sections } from "@/lib/content/defaults"
 import { conform } from "@/lib/content/shape";
 import { requireAdmin, UnauthorizedError } from "./guard";
 import type { ActionResult } from "./actions";
+import { formatDeadline, parseDeadline } from "@/lib/ppdb/deadline";
 
 const IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
 const MAX_IMAGE = 3 * 1024 * 1024; // setelah dikompres di browser biasanya < 500 KB
@@ -28,8 +29,19 @@ export async function saveContent(key: string, json: string): Promise<ActionResu
     } catch {
       return { ok: false, message: "Data konten tidak valid." };
     }
-    const data = conform(raw, contentDefaults[key]);
-    await db.siteContent.upsert({ where: { key }, create: { key, data }, update: { data } });
+    const data = conform(raw, contentDefaults[key]) as Record<string, unknown>;
+    // Penanda "pemimpin" (mis. kepala sekolah) hanya boleh 1 per daftar
+    for (const f of sections[key].fields) {
+      if (f.type !== "list" || !f.leader) continue;
+      let seen = false;
+      for (const item of (data[f.k] as Record<string, unknown>[]) ?? []) {
+        if (item[f.leader.key] === true) {
+          if (seen) item[f.leader.key] = false;
+          seen = true;
+        }
+      }
+    }
+    await db.siteContent.upsert({ where: { key }, create: { key, data: data as object }, update: { data: data as object } });
     revalidatePath("/", "layout");
     await logAudit(me, "UPDATE", `mengubah konten ${sections[key].label}`, sections[key].label);
     return { ok: true, message: "Konten disimpan & langsung tampil di website." };
@@ -66,6 +78,7 @@ export async function uploadImage(formData: FormData): Promise<{ ok: true; url: 
         mime: file.type,
         size: file.size,
         isPublic: true,
+        uploadedBy: (me.name || me.email).slice(0, 120),
         data: new Uint8Array(await file.arrayBuffer()),
       },
       select: { id: true },
@@ -78,21 +91,37 @@ export async function uploadImage(formData: FormData): Promise<{ ok: true; url: 
   }
 }
 
-/** Buka / tutup pendaftaran PPDB. */
-export async function setPpdbOpen(open: boolean): Promise<ActionResult> {
+/**
+ * Buka / tutup pendaftaran PPDB.
+ * Saat membuka wajib ada tanggal tutup (YYYY-MM-DD); jam (HH:MM) opsional.
+ * Tanpa jam = tutup setelah tanggal itu berakhir. Lewat batas = otomatis tutup (lihat lib/ppdb/deadline).
+ */
+export async function setPpdbOpen(open: boolean, until?: { date: string; time?: string }): Promise<ActionResult> {
   try {
     const me = await requireAdmin();
-    await db.ppdbInfo.upsert({ where: { id: 1 }, create: { id: 1, isOpen: open }, update: { isOpen: open } });
+    if (!open) {
+      await db.ppdbInfo.upsert({ where: { id: 1 }, create: { id: 1, isOpen: false }, update: { isOpen: false, closesAt: null, closesAtTime: false } });
+      revalidatePath("/", "layout");
+      await logAudit(me, "CLOSE", "menutup pendaftaran PPDB", "PPDB");
+      return { ok: true, message: "Pendaftaran DITUTUP." };
+    }
+    const time = until?.time?.trim() || "";
+    const closesAt = until ? parseDeadline(until.date, time) : null;
+    if (!closesAt) return { ok: false, message: "Isi tanggal ditutupnya pendaftaran." };
+    if (closesAt <= new Date()) return { ok: false, message: "Batas pendaftaran harus setelah waktu sekarang." };
+    const data = { isOpen: true, closesAt, closesAtTime: !!time };
+    await db.ppdbInfo.upsert({ where: { id: 1 }, create: { id: 1, ...data }, update: data });
     revalidatePath("/", "layout");
-    await logAudit(me, open ? "OPEN" : "CLOSE", open ? "membuka pendaftaran PPDB" : "menutup pendaftaran PPDB", "PPDB");
-    return { ok: true, message: open ? "Pendaftaran DIBUKA." : "Pendaftaran DITUTUP." };
+    const label = formatDeadline(closesAt, !!time);
+    await logAudit(me, "OPEN", `membuka pendaftaran PPDB sampai ${label}`, "PPDB");
+    return { ok: true, message: `Pendaftaran DIBUKA sampai ${label}.` };
   } catch (e) {
     return fail(e);
   }
 }
 
 // ── Pustaka media (gambar website) ──
-export type MediaItem = { id: string; url: string; filename: string; size: number; createdAt: string };
+export type MediaItem = { id: string; url: string; filename: string; size: number; createdAt: string; uploadedBy: string };
 
 /** Daftar gambar publik terbaru (tanpa mengambil isi file, supaya cepat). */
 export async function listMedia(): Promise<MediaItem[]> {
@@ -101,9 +130,9 @@ export async function listMedia(): Promise<MediaItem[]> {
     where: { isPublic: true, mime: { startsWith: "image/" } },
     orderBy: { createdAt: "desc" },
     take: 300,
-    select: { id: true, filename: true, size: true, createdAt: true },
+    select: { id: true, filename: true, size: true, createdAt: true, uploadedBy: true },
   });
-  return rows.map((r) => ({ id: r.id, url: `/api/files/${r.id}`, filename: r.filename, size: r.size, createdAt: r.createdAt.toISOString() }));
+  return rows.map((r) => ({ id: r.id, url: `/api/files/${r.id}`, filename: r.filename, size: r.size, createdAt: r.createdAt.toISOString(), uploadedBy: r.uploadedBy }));
 }
 
 export async function deleteMedia(id: string): Promise<ActionResult> {

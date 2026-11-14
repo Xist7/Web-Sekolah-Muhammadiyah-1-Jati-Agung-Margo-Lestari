@@ -1,5 +1,6 @@
 "use client";
 
+import { toast } from "@/components/admin/toast";
 import { useRouter } from "next/navigation";
 import { useTransition } from "react";
 import { useConfirm } from "@/components/admin/confirm-dialog";
@@ -15,6 +16,7 @@ export function DeletePostButton({ id, title, redirectTo }: { id: string; title:
     if (!ok) return;
     start(async () => {
       const r = await deletePost(id);
+      toast.result(r);
       if (r.ok && redirectTo) router.replace(redirectTo);
       else router.refresh();
     });

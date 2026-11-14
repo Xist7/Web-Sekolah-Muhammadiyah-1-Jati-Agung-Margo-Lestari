@@ -1,35 +1,11 @@
 import Link from "next/link";
+import { EskulPicker } from "@/components/eskul-picker";
 import { GuruCarousel } from "@/components/guru-carousel";
 import { Reveal } from "@/components/reveal";
 import { formatTanggal } from "@/lib/berita/format";
 import { getPublishedPosts } from "@/lib/berita/queries";
-
-const stats = [
-  { ic: "📅", value: "1993", label: "Sekolah berdiri sejak" },
-  { ic: "🎓", value: "58", label: "Jumlah siswa" },
-  { ic: "👩‍🏫", value: "11", label: "Tenaga pendidik" },
-];
-
-const facilities = [
-  { ic: "🏫", alt: "Ruang kelas", title: "Ruang Kelas", desc: "Ruang belajar yang bersih dan nyaman untuk kegiatan belajar sehari-hari." },
-  { ic: "🏢", alt: "Kantor", title: "Kantor", desc: "Tempat guru dan staf bekerja, sekaligus melayani orang tua dan tamu yang ingin bertanya atau mengurus keperluan sekolah." },
-];
-
-const achievements = [
-  { badge: "Emas", title: "OSN IPA & Matematika", desc: "Medali Emas Olimpiade Sains Nasional Tingkat Provinsi Lampung & Finalis Nasional.", by: "Tim Sains Junior 2024" },
-  { badge: "Juara 1", title: "National Robotics Olympiad", desc: "Kategori Autonomous Eco-Sorting Robot (Robot Pemilah Sampah Cerdas) di ITB Bandung.", by: "Tim Robotik Sekolah" },
-  { badge: "Best Speaker", title: "English Debate", desc: "Penghargaan Pembicara Terbaik & Juara Umum English Parliamentary Debate Junior Championship.", by: "Amanda Kirana (Kelas 8)" },
-  { badge: "Juara 2", title: "FLS2N Seni & Musik", desc: "Festival dan Lomba Seni Siswa Nasional cabang Ansambel Musik Campuran Nusantara.", by: "Ansambel Musik Sekolah" },
-];
-
-const eskul = [
-  { e: "🤖", name: "Robotik & AI", sub: "STEM Terapan" },
-  { e: "🎤", name: "English Debate", sub: "Model UN & Speech" },
-  { e: "🌱", name: "Eco Hidroponik", sub: "Urban Farming Club" },
-  { e: "🥋", name: "Taekwondo & Silat", sub: "Bela Diri Prestasi" },
-  { e: "🏀", name: "Basket & Futsal", sub: "Lapangan Standar FIBA" },
-  { e: "🎶", name: "Seni & Musik", sub: "Ensembel & Ilustrasi" },
-];
+import { MediaIcon } from "@/components/media-icon";
+import { getContent, getPpdbStatus } from "@/lib/content/get";
 
 // Beranda diperbarui otomatis saat admin menerbitkan berita; revalidate = cadangan tiap 5 menit
 export const revalidate = 300;
@@ -38,7 +14,24 @@ export const revalidate = 300;
 const newsIcon = (category: string) =>
   /prestasi|juara/i.test(category) ? "🏆" : /ppdb|pengumuman/i.test(category) ? "📋" : /kegiatan|agenda/i.test(category) ? "🌿" : "📰";
 
+// Gambar memenuhi kotak .ph (dipakai bila admin mengunggah foto)
+const fill = { width: "100%", height: "100%", objectFit: "cover" } as const;
+
 export default async function HomePage() {
+  // Isi beranda diambil dari panel admin (Pengaturan → Beranda); kalau belum diedit, pakai isi bawaan
+  const [hero, sambutan, guru, fasilitas, prestasi, ekskul, ppdb] = await Promise.all([
+    getContent("hero"),
+    getContent("sambutan"),
+    getContent("guru"),
+    getContent("fasilitas"),
+    getContent("prestasi"),
+    getContent("ekskul"),
+    getPpdbStatus(),
+  ]);
+  const kepala = guru.daftar.find((g) => g.kepalaSekolah);
+  const guruLain = guru.daftar.filter((g) => !g.kepalaSekolah);
+  const paragrafSambutan = sambutan.isi.split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean);
+
   // Berita diambil dari panel admin (Pengaturan → Berita): 3 terbaru yang sudah terbit
   const news = (await getPublishedPosts(3)).map((p) => ({
     slug: p.slug,
@@ -57,33 +50,36 @@ export default async function HomePage() {
       <section className="hero">
         <div className="container">
           <Link className="chip" href="/ppdb">
-            <span className="dot" /> Penerimaan Siswa Baru (PPDB) 2026/2027 Telah Dibuka
+            <span className="dot" /> {ppdb.isOpen ? hero.chipBuka : hero.chipTutup}
           </Link>
           <div className="hero-grid">
             <div>
-              <p className="eyebrow" style={{ marginBottom: 8 }}>Sekolah Swasta Islam · Zona Nyaman &amp; Menyenangkan</p>
-              <h1>SMP MUHAMMADIYAH 1 JATI AGUNG</h1>
-              <p className="addr">Jl. Hadi Subroto, Margo Lestari, Kec. Jati Agung, Kabupaten Lampung Selatan, Lampung</p>
+              {hero.eyebrow && <p className="eyebrow" style={{ marginBottom: 8 }}>{hero.eyebrow}</p>}
+              <h1>{hero.judul}</h1>
+              {hero.alamat && <p className="addr">{hero.alamat}</p>}
               <div className="hero-ctas">
-                <Link className="btn btn-primary" href="/ppdb">Daftar PPDB 2026/2027 →</Link>
-                <a className="btn btn-soft" href="#profil">🏫 Profil Sekolah</a>
+                <Link className="btn btn-primary" href="/ppdb">{hero.tombolDaftar}</Link>
+                <a className="btn btn-soft" href="#profil">{hero.tombolProfil}</a>
               </div>
             </div>
             <div className="hero-visual">
               <div className="hero-photo">
-                <div className="ph" role="img" aria-label="Foto lingkungan sekolah">🏫</div>
+                <div className="ph" role="img" aria-label="Foto lingkungan sekolah" style={hero.foto ? { padding: 0, overflow: "hidden" } : undefined}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  {hero.foto ? <img src={hero.foto} alt="" style={fill} /> : "🏫"}
+                </div>
                 <div className="float-pill">
                   <span className="ic">🏫</span>
-                  <span><strong>Sekolah Swasta Islam</strong><small>Zona nyaman &amp; menyenangkan</small></span>
+                  <span><strong>{hero.labelJudul}</strong><small>{hero.labelSub}</small></span>
                 </div>
               </div>
             </div>
           </div>
           <div className="stats" id="profil">
-            {stats.map((s) => (
-              <div className="stat" key={s.label}>
-                <div className="ic">{s.ic}</div>
-                <b>{s.value}</b>
+            {hero.statistik.map((s, i) => (
+              <div className="stat" key={i}>
+                <div className="ic"><MediaIcon m={s.ikon} /></div>
+                <b>{s.angka}</b>
                 <span>{s.label}</span>
               </div>
             ))}
@@ -97,42 +93,48 @@ export default async function HomePage() {
           <Reveal>
             <div className="principal">
               <figure className="principal-photo">
-                <div className="ph" role="img" aria-label="Foto Kepala Sekolah">👤</div>
-                <figcaption><b>Julianto</b><span>Kepala Sekolah SMP Muhammadiyah 1 Jati Agung</span></figcaption>
+                <div className="ph" role="img" aria-label="Foto Kepala Sekolah" style={kepala?.foto ? { padding: 0, overflow: "hidden" } : undefined}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  {kepala?.foto ? <img src={kepala.foto} alt="" style={fill} /> : "👤"}
+                </div>
+                {kepala && <figcaption><b>{kepala.nama}</b><span>{kepala.mapel}</span></figcaption>}
               </figure>
               <div>
-                <p className="eyebrow">Visi dan Misi Sekolah</p>
-                <blockquote>“Setiap anak adalah bibit unggul yang bertumbuh optimal di tanah yang penuh kasih dan keteladanan.”</blockquote>
-                <p>
-                  Selamat datang di SMP Muhammadiyah 1 Jati Agung. Memasuki usia remaja awal adalah fase transisi krusial
-                  di mana rasa ingin tahu, kecerdasan moral, dan kesadaran sosial mulai berakar kuat. Kami meyakini bahwa
-                  pendidikan sejati bukan semata tentang tumpukan nilai kognitif, melainkan penempaan integritas budi
-                  pekerti yang selaras dengan kecintaan terhadap sesama dan alam semesta.
-                </p>
+                {sambutan.eyebrow && <p className="eyebrow">{sambutan.eyebrow}</p>}
+                {sambutan.kutipan && <blockquote>{sambutan.kutipan}</blockquote>}
+                {paragrafSambutan.map((p, i) => <p key={i}>{p}</p>)}
               </div>
             </div>
           </Reveal>
         </div>
       </section>
 
-      <GuruCarousel />
+      <Reveal>
+        <GuruCarousel eyebrow={guru.eyebrow} judul={guru.judul} subjudul={guru.subjudul} daftar={guruLain} />
+      </Reveal>
 
       {/* FASILITAS */}
       <section className="section" id="fasilitas">
         <div className="container">
           <Reveal>
             <div className="section-head center">
-              <p className="eyebrow">Sarana &amp; Prasarana</p>
-              <h2 className="section-title">Fasilitas SMP Muhammadiyah 1 Jati Agung</h2>
+              {fasilitas.eyebrow && <p className="eyebrow">{fasilitas.eyebrow}</p>}
+              <h2 className="section-title">{fasilitas.judul}</h2>
             </div>
             <div className="grid-2">
-              {facilities.map((f) => (
-                <article className="card fac" key={f.title}>
-                  <div className="ph" role="img" aria-label={f.alt}></div>
-                  <h3>{f.title}</h3>
-                  <p>{f.desc}</p>
-                </article>
-              ))}
+              {fasilitas.daftar.map((f, i) => {
+                const img = f.media.jenis === "gambar" ? f.media.gambar : "";
+                return (
+                  <article className="card fac" key={i}>
+                    <div className="ph" role="img" aria-label={f.judul} style={img ? { padding: 0, overflow: "hidden" } : undefined}>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      {img ? <img src={img} alt="" loading="lazy" style={fill} /> : f.media.emoji}
+                    </div>
+                    <h3>{f.judul}</h3>
+                    <p>{f.deskripsi}</p>
+                  </article>
+                );
+              })}
             </div>
           </Reveal>
         </div>
@@ -145,20 +147,20 @@ export default async function HomePage() {
             <div className="achv-panel">
               <div className="achv-head">
                 <div>
-                  <p className="eyebrow">Jejak Prestasi Siswa</p>
-                  <h2 className="section-title">Kilau Kejuaraan Nasional &amp; Internasional</h2>
+                  {prestasi.eyebrow && <p className="eyebrow">{prestasi.eyebrow}</p>}
+                  <h2 className="section-title">{prestasi.judul}</h2>
                 </div>
-                <span className="chip">Tahun Ajaran 2026/2027</span>
+                {prestasi.chip && <span className="chip">{prestasi.chip}</span>}
               </div>
               <div className="achv-grid">
-                {achievements.map((a) => (
-                  <article className="achv" key={a.title}>
+                {prestasi.daftar.map((a, i) => (
+                  <article className="achv" key={i}>
                     <div>
-                      <div className="achv-top"><span className="medal">🏅</span><span className="badge">{a.badge}</span></div>
-                      <h3>{a.title}</h3>
-                      <p>{a.desc}</p>
+                      <div className="achv-top"><span className="medal"><MediaIcon m={a.media} /></span>{a.lencana && <span className="badge">{a.lencana}</span>}</div>
+                      <h3>{a.judul}</h3>
+                      <p>{a.deskripsi}</p>
                     </div>
-                    <small>Oleh: {a.by}</small>
+                    {a.oleh && <small>Oleh: {a.oleh}</small>}
                   </article>
                 ))}
               </div>
@@ -172,30 +174,12 @@ export default async function HomePage() {
         <div className="container">
           <Reveal>
             <div className="section-head">
-              <p className="eyebrow">Ekstrakurikuler</p>
-              <h2 className="section-title">Ekstrakurikuler Pilihan &amp; Bakat Minat</h2>
+              {ekskul.eyebrow && <p className="eyebrow">{ekskul.eyebrow}</p>}
+              <h2 className="section-title">{ekskul.judul}</h2>
             </div>
-            <div className="eskul-panel">
-              <div className="eskul-chips">
-                {eskul.map((e) => (
-                  <div className="eskul-chip" key={e.name}>
-                    <div className="e">{e.e}</div>
-                    <b>{e.name}</b>
-                    <span>{e.sub}</span>
-                  </div>
-                ))}
-              </div>
-              <div className="grid-2">
-                <article className="card fac">
-                  <h3>🤖 Robotik &amp; AI</h3>
-                  <p>Mengembangkan kemampuan STEM melalui proyek robotika dan IoT yang terstruktur.</p>
-                </article>
-                <article className="card fac">
-                  <h3>🌱 Eco Hidroponik</h3>
-                  <p>Praktik hidroponik dan konservasi tanaman untuk memupuk rasa hormat pada alam.</p>
-                </article>
-              </div>
-            </div>
+            <EskulPicker
+              items={ekskul.daftar.map((e) => ({ e: e.media.emoji, img: e.media.jenis === "gambar" ? e.media.gambar : "", name: e.nama, sub: e.keterangan, desc: e.deskripsi }))}
+            />
           </Reveal>
         </div>
       </section>

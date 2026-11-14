@@ -1,5 +1,6 @@
 "use client";
 
+import { toast } from "@/components/admin/toast";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, useTransition } from "react";
 import { savePost } from "@/lib/admin/post-actions";
@@ -72,7 +73,8 @@ export function PostEditor({ initial, categories }: { initial: EditablePost; cat
         publish,
         publishedAt: p.publishedAt ? new Date(p.publishedAt).toISOString() : undefined,
       });
-      setMsg({ ok: r.ok, text: r.message });
+      toast.result(r);
+      setMsg(r.ok ? undefined : { ok: false, text: r.message });
       if (!r.ok) return;
       setDirty(false);
       setP((x) => ({ ...x, id: r.id, slug: r.slug, status: publish ? "PUBLISHED" : "DRAFT" }));
