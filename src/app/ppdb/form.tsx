@@ -1,14 +1,18 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import Script from "next/script";
 import { useEffect, useRef, useState, type FormEvent } from "react";
-import { submitRegistration } from "@/lib/ppdb/actions";
+import { checkNisn, submitRegistration } from "@/lib/ppdb/actions";
 import { UploadBox } from "./upload-box";
 
 type Field = HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement;
 type FileKey = "foto" | "skl";
 
 const DRAFT_KEY = "ppdb-draft-2026";
+const NISN_TAKEN = "NISN ini sudah terdaftar. Periksa kembali, atau hubungi panitia PPDB jika belum pernah mendaftar.";
+/** Kosong = Turnstile nonaktif (mis. saat development). */
+const TURNSTILE_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? "";
 const REQUIRED = "input[required]:not([type=radio]), select[required], textarea[required]";
 
 const msgs: Record<string, string> = {
@@ -60,6 +64,10 @@ export function PpdbForm() {
   const [toast, setToast] = useState<string>();
   const [done, setDone] = useState<{ name: string; no: string }>();
   const [sending, setSending] = useState(false);
+  const [nisnStatus, setNisnStatus] = useState<"idle" | "checking" | "free" | "taken" | "error">("idle");
+  const nisnTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const nisnSeq = useRef(0);
+  const openedRef = useRef<HTMLInputElement>(null);
 
   const showToast = (m: string) => {
     setToast(m);
@@ -68,9 +76,31 @@ export function PpdbForm() {
   };
   const setErr = (key: string, msg: string) => setErrors((e) => ({ ...e, [key]: msg }));
 
+  // Cek NISN ke server begitu 10 digit terisi (dengan jeda supaya tidak spam request)
+  function lookupNisn(value: string) {
+    clearTimeout(nisnTimer.current);
+    nisnSeq.current++;
+    if (value.length !== 10) { setNisnStatus("idle"); return; }
+    const seq = nisnSeq.current;
+    setNisnStatus("checking");
+    nisnTimer.current = setTimeout(() => {
+      checkNisn(value)
+        .then((r) => {
+          if (seq !== nisnSeq.current) return; // sudah diketik ulang
+          setNisnStatus(r.registered ? "taken" : "free");
+          setErr("nisn", r.registered ? NISN_TAKEN : "");
+        })
+        .catch(() => { if (seq === nisnSeq.current) setNisnStatus("error"); });
+    }, 400);
+  }
+
   function checkField(el: Field) {
     let ok = el.checkValidity();
     if (el.id === "nisn" && el.value.length !== 10) ok = false;
+    if (el.id === "nisn" && ok && nisnStatus === "taken") {
+      setErr("nisn", NISN_TAKEN);
+      return false;
+    }
     if (el.id === "nama" && el.value.trim().length < 3) ok = false;
     if (el.id === "jalan" && el.value.trim().length < 3) ok = false;
     setErr(el.id, ok ? "" : msgs[el.id] || "Kolom ini wajib diisi.");
@@ -88,19 +118,22 @@ export function PpdbForm() {
   // Pulihkan draf + batas tanggal lahir (hanya di browser)
   useEffect(() => {
     const form = formRef.current;
+    if (openedRef.current) openedRef.current.value = String(Date.now());
     const tgl = form?.querySelector<HTMLInputElement>("#tgl");
     if (tgl) tgl.max = new Date().toISOString().slice(0, 10);
     const d = store.get();
     if (!d || !form) return;
     form.querySelectorAll<Field>("input, select, textarea").forEach((el) => {
-      if (el.type === "file") return;
+      if (el.type === "file" || el.type === "hidden" || "nodraft" in el.dataset) return;
       if (el instanceof HTMLInputElement && el.type === "radio") el.checked = d[el.name] === el.value;
       else if (el instanceof HTMLInputElement && el.type === "checkbox") el.checked = !!d[fieldKey(el)];
       else if (fieldKey(el) in d) el.value = String(d[fieldKey(el)]);
     });
     const lain = form.querySelector<HTMLInputElement>("#infoLain");
     setLainChecked(!!lain?.checked);
-    setNisnLen(form.querySelector<HTMLInputElement>("#nisn")?.value.length ?? 0);
+    const nisnVal = form.querySelector<HTMLInputElement>("#nisn")?.value ?? "";
+    setNisnLen(nisnVal.length);
+    lookupNisn(nisnVal);
     setSaveStatus("Draf sebelumnya dimuat");
   }, []);
 
@@ -113,7 +146,7 @@ export function PpdbForm() {
   function saveDraft() {
     const d: Record<string, string | boolean> = {};
     formRef.current?.querySelectorAll<Field>("input, select, textarea").forEach((el) => {
-      if (el.type === "file") return;
+      if (el.type === "file" || el.type === "hidden" || "nodraft" in el.dataset) return;
       if (el instanceof HTMLInputElement && el.type === "radio") { if (el.checked) d[el.name] = el.value; }
       else if (el instanceof HTMLInputElement && el.type === "checkbox") d[fieldKey(el)] = el.checked;
       else d[fieldKey(el)] = el.value;
@@ -168,10 +201,20 @@ export function PpdbForm() {
           return;
         }
         showToast(res.message);
+        // Token Turnstile hanya sekali pakai → minta token baru untuk percobaan berikutnya
+        (window as { turnstile?: { reset: () => void } }).turnstile?.reset();
+        // Isian TIDAK dihapus: tandai kolom yang salah lalu arahkan ke kolom pertama
+        let firstBad: HTMLElement | null = null;
         for (const [k, v] of Object.entries(res.fieldErrors ?? {})) {
           if (!v?.[0]) continue;
           if (k === "foto" || k === "skl") setFileErrors((fe) => ({ ...fe, [k]: v[0] }));
           else setErr(k, v[0]);
+          if (k === "nisn") setNisnStatus("taken");
+          firstBad ??= form.querySelector<HTMLElement>(k === "foto" || k === "skl" ? `[data-upload=${k}] .pick` : `[name="${k}"]`);
+        }
+        if (firstBad) {
+          firstBad.scrollIntoView({ behavior: "smooth", block: "center" });
+          firstBad.focus({ preventScroll: true });
         }
       })
       .catch(() => showToast("Gagal terhubung ke server. Periksa koneksi lalu coba lagi."))
@@ -206,10 +249,18 @@ export function PpdbForm() {
                   el.value = el.value.replace(/\D/g, "").slice(0, 10);
                   setNisnLen(el.value.length);
                   if (errors.nisn) checkField(el);
+                  lookupNisn(el.value);
                 }}
               />
               <span className="counter">{nisnLen}/10</span>
-              <span className="hint">10 digit angka</span><span className="err">{errors.nisn}</span>
+              {nisnStatus === "checking" && <span className="hint">Memeriksa NISN…</span>}
+              {nisnStatus === "free" && !errors.nisn && (
+                <span className="hint" style={{ color: "#15803d", fontWeight: 600 }}>✓ NISN belum terdaftar, bisa digunakan.</span>
+              )}
+              {(nisnStatus === "idle" || nisnStatus === "error") && !errors.nisn && (
+                <span className="hint">{nisnStatus === "error" ? "NISN belum bisa diperiksa, akan dicek lagi saat dikirim." : "10 digit angka"}</span>
+              )}
+              <span className="err">{errors.nisn}</span>
             </div>
             <div className={fieldClass("nama")}>
               <label htmlFor="nama">Nama Lengkap Calon Siswa<span className="req">*</span></label>
@@ -442,6 +493,19 @@ export function PpdbForm() {
             </div>
           </div>
         </section>
+
+        {/* Anti bot: honeypot (disembunyikan dari manusia) + waktu buka halaman */}
+        <div aria-hidden="true" style={{ position: "absolute", left: "-9999px", width: 1, height: 1, overflow: "hidden" }}>
+          <label htmlFor="website">Website</label>
+          <input id="website" name="website" type="text" tabIndex={-1} autoComplete="off" data-nodraft defaultValue="" />
+        </div>
+        <input ref={openedRef} type="hidden" name="_t" data-nodraft />
+        {TURNSTILE_SITE_KEY && (
+          <>
+            <Script src="https://challenges.cloudflare.com/turnstile/v0/api.js" strategy="afterInteractive" />
+            <div className="cf-turnstile" data-sitekey={TURNSTILE_SITE_KEY} data-language="id" style={{ marginTop: 16 }} />
+          </>
+        )}
 
         <div className="action-bar">
           <span className="status" aria-live="polite">{saveStatus}</span>

@@ -8,7 +8,7 @@ export async function getDashboardStats() {
     db.registration.groupBy({ by: ["status"], _count: { _all: true } }),
     db.registration.findMany({ orderBy: { createdAt: "desc" }, take: 10 }),
     db.schoolProfile.findUnique({ where: { id: 1 }, select: { studentCount: true, classCount: true } }),
-    db.ppdbInfo.findUnique({ where: { id: 1 }, select: { isOpen: true, academicYear: true } }),
+    db.ppdbInfo.findUnique({ where: { id: 1 }, select: { isOpen: true, closesAt: true, closesAtTime: true, academicYear: true } }),
   ]);
   const byStatus: Record<RegistrationStatus, number> = { PENDING: 0, ACCEPTED: 0, REJECTED: 0 };
   for (const g of grouped) byStatus[g.status] = g._count._all;

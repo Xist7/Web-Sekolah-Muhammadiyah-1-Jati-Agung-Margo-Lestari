@@ -35,7 +35,7 @@ export function UploadBox(p: Props) {
     if (!raw) return;
     if (!p.accept.includes(raw.type)) return p.onError(p.formatError);
     // Gambar dikompres dulu (JPEG 60%, maks. 1600 px) supaya hemat ruang database & cepat diunggah
-    const f = await compressImage(raw, { quality: 0.6, maxSide: 1600 });
+    const f = await compressImage(raw, { quality: 0.8, maxSide: 1600 });
     const max = p.maxMb * 1048576;
     if (f.size > max) return p.onError(`Ukuran ${fmt(f.size)} melebihi batas ${fmt(max)}.`);
     p.onError("");

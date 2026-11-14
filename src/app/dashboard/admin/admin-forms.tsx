@@ -1,5 +1,6 @@
 "use client";
 
+import { toast } from "@/components/admin/toast";
 import { useActionState, useState, useTransition } from "react";
 import { useConfirm } from "@/components/admin/confirm-dialog";
 import { addAdmin, deleteAdmin, setAdminActive } from "@/lib/admin/admin-actions";
@@ -8,7 +9,11 @@ const input =
   "rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100 focus:outline-none";
 
 export function AddAdminForm() {
-  const [state, action, pending] = useActionState(addAdmin, null);
+  const [state, action, pending] = useActionState(async (prev: Awaited<ReturnType<typeof addAdmin>> | null, fd: FormData) => {
+    const r = await addAdmin(prev, fd);
+    toast.result(r);
+    return r;
+  }, null);
   return (
     <form action={action} className="flex flex-wrap items-end gap-3 rounded-xl bg-white p-5 shadow-sm ring-1 ring-slate-100">
       <div className="min-w-60 flex-1">
@@ -35,6 +40,7 @@ export function AdminRow({ admin, isMe }: { admin: Admin; isMe: boolean }) {
   const toggle = () =>
     start(async () => {
       const r = await setAdminActive(admin.id, !admin.isActive);
+      toast.result(r);
       setMsg({ ok: r.ok, text: r.message });
     });
 
@@ -43,6 +49,7 @@ export function AdminRow({ admin, isMe }: { admin: Admin; isMe: boolean }) {
     if (!ok) return;
     start(async () => {
       const r = await deleteAdmin(admin.id);
+      toast.result(r);
       if (!r.ok) setMsg({ ok: false, text: r.message });
     });
   };

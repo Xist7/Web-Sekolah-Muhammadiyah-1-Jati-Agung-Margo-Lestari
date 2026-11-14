@@ -10,6 +10,8 @@ type Options = {
   /** merah untuk aksi berbahaya (hapus / tutup) */
   danger?: boolean;
   icon?: string;
+  /** detik tunggu sebelum tombol konfirmasi bisa diklik (supaya pesan benar-benar dibaca) */
+  delay?: number;
 };
 
 /**
@@ -39,8 +41,16 @@ export function useConfirm() {
   return [dialog, confirm] as const;
 }
 
-function ConfirmCard({ title, message, confirmText = "Ya, lanjutkan", cancelText = "Batal", danger, icon, onClose }: Options & { onClose: (v: boolean) => void }) {
+function ConfirmCard({ title, message, confirmText = "Ya, lanjutkan", cancelText = "Batal", danger, icon, delay = 0, onClose }: Options & { onClose: (v: boolean) => void }) {
   const ref = useRef<HTMLDialogElement>(null);
+  const [left, setLeft] = useState(delay);
+  const locked = left > 0;
+
+  useEffect(() => {
+    if (left <= 0) return;
+    const t = setTimeout(() => setLeft((n) => n - 1), 1000);
+    return () => clearTimeout(t);
+  }, [left]);
 
   useEffect(() => {
     const d = ref.current;
@@ -63,16 +73,17 @@ function ConfirmCard({ title, message, confirmText = "Ya, lanjutkan", cancelText
         {message && <div className="mt-2 text-sm text-slate-500">{message}</div>}
       </div>
       <div className="flex flex-col-reverse gap-2 border-t border-slate-100 bg-slate-50 px-6 py-4 sm:flex-row sm:justify-end">
-        <button type="button" onClick={() => onClose(false)} className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100">
+        <button type="button" autoFocus={delay > 0} onClick={() => onClose(false)} className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100">
           {cancelText}
         </button>
         <button
           type="button"
-          autoFocus
+          autoFocus={delay === 0}
+          disabled={locked}
           onClick={() => onClose(true)}
-          className={`rounded-lg px-4 py-2 text-sm font-semibold text-white ${danger ? "bg-red-600 hover:bg-red-700" : "bg-emerald-700 hover:bg-emerald-800"}`}
+          className={`rounded-lg px-4 py-2 text-sm font-semibold text-white tabular-nums disabled:cursor-not-allowed disabled:opacity-50 ${danger ? "bg-red-600 enabled:hover:bg-red-700" : "bg-emerald-700 enabled:hover:bg-emerald-800"}`}
         >
-          {confirmText}
+          {locked ? `${confirmText} (${left})` : confirmText}
         </button>
       </div>
     </dialog>

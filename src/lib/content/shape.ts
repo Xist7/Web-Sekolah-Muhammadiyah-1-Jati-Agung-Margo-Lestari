@@ -15,7 +15,9 @@ export function conform<T>(value: unknown, template: T): T {
   if (typeof template === "boolean") return (typeof value === "boolean" ? value : template) as T;
   if (Array.isArray(template)) {
     if (!Array.isArray(value)) return template;
-    const item = template[0];
+    // Item contoh dikosongkan dulu: kolom yang hilang jadi ""/false, bukan ikut isi item pertama
+    // (mis. kepalaSekolah: true milik guru pertama tidak menular ke semua guru)
+    const item = blank(template[0]);
     return value.slice(0, 200).map((v) => conform(v, item)) as T;
   }
   if (isObj(template)) {

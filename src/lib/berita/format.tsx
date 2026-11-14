@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { Fragment, type ReactNode } from "react";
 
 /** "Tim Peneliti ITERA: Lensa Herbal!" → "tim-peneliti-itera-lensa-herbal" */
 export function slugify(s: string) {
@@ -70,8 +70,13 @@ export function renderContent(src: string): ReactNode[] {
           {img[1] && <figcaption>{img[1]}</figcaption>}
         </figure>
       );
-    if (b.startsWith("### ")) return <h3 key={k}>{inline(b.slice(4), k)}</h3>;
-    if (b.startsWith("## ")) return <h2 key={k}>{inline(b.slice(3), k)}</h2>;
+    // Subjudul hanya baris pertama; baris setelahnya (tanpa baris kosong) jadi blok biasa
+    const heading = b.match(/^(#{2,3}) (.*)(?:\n([\s\S]*))?$/);
+    if (heading) {
+      const h = heading[1].length === 2 ? <h2 key={k}>{inline(heading[2], k)}</h2> : <h3 key={k}>{inline(heading[2], k)}</h3>;
+      const rest = heading[3]?.trim();
+      return rest ? [h, <Fragment key={`${k}r`}>{renderContent(rest)}</Fragment>] : [h];
+    }
     const lines = b.split("\n");
     if (lines.every((l) => /^[-*] /.test(l))) return <ul key={k}>{lines.map((l, i) => <li key={i}>{inline(l.slice(2), `${k}${i}`)}</li>)}</ul>;
     if (lines.every((l) => /^\d+[.)] /.test(l))) return <ol key={k}>{lines.map((l, i) => <li key={i}>{inline(l.replace(/^\d+[.)] /, ""), `${k}${i}`)}</li>)}</ol>;

@@ -1,9 +1,11 @@
 "use client";
 
 import { useRef } from "react";
-import { guru } from "@/data/guru";
 
-export function GuruCarousel() {
+type Guru = { nama: string; mapel: string; foto: string };
+type Props = { eyebrow: string; judul: string; subjudul: string; daftar: Guru[] };
+
+export function GuruCarousel({ eyebrow, judul, subjudul, daftar }: Props) {
   const track = useRef<HTMLDivElement>(null);
   const geser = (arah: 1 | -1) =>
     track.current?.scrollBy({ left: arah * 300, behavior: "smooth" });
@@ -12,16 +14,21 @@ export function GuruCarousel() {
     <section className="guru" aria-labelledby="h-guru">
       <div className="container">
         <div className="section-head center">
-        <p className="eyebrow">Guru &amp; Staf</p>
-        <h2 className="section-title" id="h-guru">Tenaga Pendidik</h2>
-        <p className="guru-sub">Dibimbing oleh guru-guru profesional yang ahli di bidangnya.</p>
+        {eyebrow && <p className="eyebrow">{eyebrow}</p>}
+        <h2 className="section-title" id="h-guru">{judul}</h2>
+        {subjudul && <p className="guru-sub">{subjudul}</p>}
         </div>
         <div className="guru-wrap">
           <button type="button" className="guru-nav" onClick={() => geser(-1)} aria-label="Geser ke kiri">‹</button>
           <div className="guru-track" ref={track}>
-            {guru.map((g) => (
-              <article className="guru-card" key={g.nama}>
-                <img src={g.foto} alt={`Foto ${g.nama}`} loading="lazy" />
+            {daftar.map((g, i) => (
+              <article className="guru-card" key={i}>
+                {g.foto ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={g.foto} alt={`Foto ${g.nama}`} loading="lazy" />
+                ) : (
+                  <div className="guru-ph" role="img" aria-label={`Foto ${g.nama}`}>👤</div>
+                )}
                 <h3>{g.nama}</h3>
                 <p>{g.mapel}</p>
               </article>

@@ -1,11 +1,15 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { formatTanggal, plainText, renderContent } from "@/lib/berita/format";
+import { ShareBar } from "@/components/berita/share-bar";
+import { countWords, formatTanggal, plainText, renderContent } from "@/lib/berita/format";
 import { getPostBySlug } from "@/lib/berita/queries";
 import "../berita.css";
 
 export const revalidate = 300;
+
+// Gambar contoh bila admin belum mengunggah sampul
+const CONTOH_SAMPUL = "/berita/contoh-sampul.svg";
 
 // Halaman dibuat saat pertama dibuka lalu di-cache (cepat); diperbarui saat admin menyimpan berita
 export async function generateStaticParams() {
@@ -26,31 +30,42 @@ export async function generateMetadata({ params }: PageProps<"/berita/[slug]">):
 export default async function BeritaDetailPage({ params }: PageProps<"/berita/[slug]">) {
   const post = await getPostBySlug((await params).slug);
   if (!post) notFound();
-  const wa = `https://wa.me/?text=${encodeURIComponent(post.title)}`;
+  const menit = Math.max(1, Math.round(countWords(plainText(post.content)) / 200));
+  const cover = post.coverUrl || CONTOH_SAMPUL;
 
   return (
-    <main className="container berita-wrap">
-      <article className="post">
-        <Link href="/berita" className="post-back">← Semua berita</Link>
-        <div className="berita-meta">
-          <time dateTime={post.publishedAt?.toISOString()}>{formatTanggal(post.publishedAt)}</time>
-          {post.category && <b>• {post.category}</b>}
-          {post.author && <span>• Oleh {post.author}</span>}
-        </div>
-        <h1>{post.title}</h1>
-        {post.subtitle && <p className="lead">{post.subtitle}</p>}
-        {post.coverUrl && (
-          <div className="post-cover">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={post.coverUrl} alt={post.title} />
+    <main>
+      <header className="post-hero">
+        <div className="container post-hero-inner">
+          <nav className="post-crumb" aria-label="Breadcrumb">
+            <Link href="/">Beranda</Link>
+            <span>/</span>
+            <Link href="/berita">Berita</Link>
+            <span>/</span>
+            <span aria-current="page">{post.title}</span>
+          </nav>
+          {post.category && <p className="post-tag">{post.category}</p>}
+          <h1>{post.title}</h1>
+          <div className="post-info">
+            <time dateTime={post.publishedAt?.toISOString()}>{formatTanggal(post.publishedAt)}</time>
+            {post.author && <span>Oleh {post.author}</span>}
+            <span>{menit} menit baca</span>
           </div>
-        )}
-        <div className="prose-berita">{renderContent(post.content)}</div>
-        <div className="post-share">
-          <span>Bagikan:</span>
-          <a href={wa} target="_blank" rel="noopener noreferrer">WhatsApp</a>
         </div>
-      </article>
+      </header>
+
+      <div className="container post-layout">
+        <ShareBar title={post.title} />
+        <article className="post">
+          <figure className="post-cover">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={cover} alt={post.coverUrl ? post.title : "Contoh gambar sampul"} />
+          </figure>
+          {post.subtitle && <p className="lead">{post.subtitle}</p>}
+          <div className="prose-berita">{renderContent(post.content)}</div>
+          <Link href="/berita" className="post-back">← Kembali ke semua berita</Link>
+        </article>
+      </div>
     </main>
   );
 }

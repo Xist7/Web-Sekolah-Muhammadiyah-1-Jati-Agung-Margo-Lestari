@@ -10,7 +10,7 @@ export const metadata: Metadata = { title: "Pendaftaran Siswa Baru PPDB 2026/202
 
 export default async function PpdbPage() {
   // Buka/tutup pendaftaran & teksnya diatur dari panel admin
-  const [{ isOpen }, c, footer] = await Promise.all([getPpdbStatus(), getContent("ppdb"), getContent("footer")]);
+  const [{ isOpen, deadline }, c, footer] = await Promise.all([getPpdbStatus(), getContent("ppdb"), getContent("footer")]);
 
   return (
     <>
@@ -23,7 +23,7 @@ export default async function PpdbPage() {
           </nav>
           <div className="ticker">
             <span className="dot" style={isOpen ? undefined : { background: "#c0392b" }} />{" "}
-            {isOpen ? <>{c.tickerBuka} <b>{c.tenggat}</b></> : c.tickerTutup}
+            {isOpen ? (deadline ? <>{c.tickerBuka} <b>{deadline}</b></> : c.tickerBukaTanpaBatas) : c.tickerTutup}
           </div>
         </div>
       </div>
