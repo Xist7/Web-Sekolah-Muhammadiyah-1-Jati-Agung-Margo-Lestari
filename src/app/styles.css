@@ -1310,3 +1310,430 @@ main > section:nth-of-type(5) {
   color: var(--primary) !important;
   font-weight: 600;
 }
+
+/* ===== PPDB: tema soft green + putih (hanya halaman form) ===== */
+.form-layout {
+  --soft-50: #f6fbf8;
+  --soft-100: #e8f5ed;
+  --soft-200: #d3ecdd;
+  --soft-400: #7cc79a;
+  --soft-500: #5fb585;
+  --soft-700: #2f6e4d;
+  --soft-900: #17402b;
+}
+
+/* Kartu */
+.form-layout .form-card {
+  background: #fff;
+  border: 1px solid var(--soft-200);
+  box-shadow: 0 2px 10px rgba(47, 110, 77, 0.06);
+}
+.form-layout .form-card > header {
+  background: var(--soft-100);
+  border-bottom: 1px solid var(--soft-200);
+}
+.form-layout .form-card h2 {
+  color: var(--soft-700);
+}
+.form-layout .form-card .ic {
+  background: var(--soft-400);
+  color: #fff;
+}
+
+/* Isian */
+.form-layout .field input,
+.form-layout .field select,
+.form-layout .field textarea,
+.form-layout .radio,
+.form-layout .check {
+  background: var(--soft-50);
+  border-color: var(--soft-200);
+}
+.form-layout .field input:focus,
+.form-layout .field select:focus,
+.form-layout .field textarea:focus {
+  outline: 2px solid var(--soft-400);
+  outline-offset: 0;
+  border-color: var(--soft-500);
+  background: #fff;
+}
+.form-layout input[type="radio"],
+.form-layout input[type="checkbox"] {
+  accent-color: var(--soft-500);
+}
+
+/* Bar tombol */
+.form-layout .action-bar {
+  background: #fff;
+  border: 1px solid var(--soft-200);
+}
+
+/* Tombol */
+.form-layout .btn-primary {
+  background: var(--soft-500);
+  color: var(--soft-900);
+  border-color: var(--soft-500);
+}
+.form-layout .btn-primary:hover:not(:disabled) {
+  background: var(--soft-400);
+}
+.form-layout .btn-soft {
+  background: var(--soft-100);
+  color: var(--soft-700);
+  border-color: var(--soft-200);
+}
+.form-layout .btn-soft:hover {
+  background: var(--soft-200);
+}
+
+/* ===== PPDB: kartu upload dokumen, soft green + putih ===== */
+.form-layout .upload {
+  background: #fff;
+  border: 1px solid var(--soft-200, #d3ecdd);
+  box-shadow: 0 2px 10px rgba(47, 110, 77, 0.06);
+}
+.form-layout .upload.invalid {
+  border-color: #e8a9a9; /* tetap kemerahan supaya error kelihatan */
+}
+.form-layout .upload-head h3 {
+  color: var(--soft-700, #2f6e4d);
+}
+
+/* Badge "Wajib diisi": oranye jadi emas pucat */
+.form-layout .upload .chip-sand {
+  background: #f6ecc8;
+  color: #7a5c00;
+}
+
+/* Area tarik & letakkan */
+.form-layout .upload .drop {
+  background: var(--soft-50, #f6fbf8);
+  border: 2px dashed var(--soft-400, #7cc79a);
+}
+.form-layout .upload .drop.over {
+  background: var(--soft-100, #e8f5ed);
+  border-style: solid;
+}
+.form-layout .upload .drop .ic {
+  background: var(--soft-400, #7cc79a);
+  color: #fff;
+}
+.form-layout .upload .drop strong {
+  color: var(--soft-700, #2f6e4d);
+}
+
+/* Setelah file dipilih */
+.form-layout .upload .file-row {
+  background: var(--soft-50, #f6fbf8);
+  border: 1px solid var(--soft-200, #d3ecdd);
+}
+.form-layout .upload .thumb {
+  background: var(--soft-100, #e8f5ed);
+}
+.form-layout .upload .ok-badge {
+  color: var(--soft-700, #2f6e4d);
+}
+
+/* ===== PPDB: bar tombol di HP tidak nempel, diletakkan di bawah form ===== */
+@media (max-width: 700px) {
+  .form-layout .action-bar {
+    position: static !important;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    margin-top: 24px;
+    box-shadow: none;
+  }
+  .form-layout .action-bar .btn {
+    width: 100%;
+    justify-content: center;
+    white-space: normal;
+  }
+}
+
+/* ===== Header di HP: nama sekolah boleh menyusut, tombol tidak terdorong keluar ===== */
+@media (max-width: 700px) {
+  .site-header .container {
+    gap: 8px;
+  }
+  .brand {
+    flex: 1 1 auto;
+    min-width: 0;
+    gap: 8px;
+  }
+  .brand > div {
+    min-width: 0;
+  }
+  .brand-logo-img {
+    width: 36px;
+    height: 36px;
+  }
+  .brand b {
+    font-size: 0.78rem;
+    line-height: 1.15;
+    white-space: normal; /* boleh turun jadi 2 baris */
+  }
+  .brand small {
+    font-size: 0.6rem;
+    letter-spacing: 0.12em;
+  }
+  .header-actions {
+    flex-shrink: 0;
+    gap: 8px;
+  }
+  .header-actions .btn {
+    padding: 8px 12px;
+    font-size: 0.78rem;
+    white-space: nowrap;
+  }
+  .menu-toggle {
+    width: 40px;
+    height: 40px;
+  }
+}
+
+/* HP yang sangat sempit: tombol Daftar disembunyikan, hamburger tetap ada */
+@media (max-width: 360px) {
+  .header-actions .btn {
+    display: none;
+  }
+}
+
+/* ===== PPDB (HP): tombol numpuk, lebih kecil ===== */
+@media (max-width: 700px) {
+  .form-layout .action-bar {
+    padding: 14px !important;
+    gap: 10px !important;
+  }
+  /* pembungkus tombol, apa pun nama class-nya */
+  .form-layout .action-bar :is(div, span):has(> .btn) {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    width: 100% !important;
+    gap: 10px !important;
+  }
+  .form-layout .action-bar .btn {
+    flex: 0 0 auto !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    padding: 12px 16px !important;
+    font-size: 0.9rem !important;
+    line-height: 1.3 !important;
+    border-radius: 12px !important;
+    white-space: normal !important;
+    justify-content: center;
+    text-align: center;
+  }
+}
+
+/* ===== PPDB: latar putih, tanpa krem ===== */
+body:has(.form-layout),
+body:has(.form-layout) main {
+  background: #ffffff !important;
+}
+.site-header {
+  background: #ffffff !important;
+}
+
+/* ===== Halaman login admin ===== */
+.lg {
+  padding: 48px 16px;
+  background: linear-gradient(180deg, #f6fbf8 0%, #e8f3ec 100%);
+}
+.lg-shell {
+  display: grid;
+  grid-template-columns: 1.05fr 1fr;
+  max-width: 1000px;
+  min-height: 560px;
+  margin: 0 auto;
+  overflow: hidden;
+  border-radius: 24px;
+  background: #fff;
+  box-shadow: 0 20px 50px rgba(11, 61, 42, 0.18);
+}
+
+/* Panel kiri */
+.lg-side {
+  position: relative;
+  background-color: #0b3d2a; /* cadangan kalau hero.jpg belum ada */
+  background-size: cover;
+  background-position: center;
+  color: #fff;
+}
+.lg-side-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(160deg, rgba(4, 48, 31, 0.92), rgba(4, 48, 31, 0.7));
+}
+.lg-side-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 32px;
+  height: 100%;
+  padding: 36px;
+}
+.lg-side-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.lg-side-brand img {
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
+}
+.lg-side-brand b {
+  font-size: 0.9rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.lg-side-eyebrow {
+  margin-bottom: 10px;
+  color: var(--accent-light, #f2d77a);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+.lg-side h2 {
+  font-size: 1.9rem;
+  line-height: 1.2;
+  font-weight: 800;
+  color: #fff;
+}
+.lg-side-desc {
+  margin-top: 12px;
+  max-width: 340px;
+  line-height: 1.7;
+  color: #cfe3d6;
+}
+.lg-side-visi {
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  font-size: 0.85rem;
+  font-style: italic;
+  line-height: 1.7;
+  color: #b9d3c2;
+}
+
+/* Panel kanan */
+.lg-panel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 32px;
+}
+.lg-card {
+  width: 100%;
+  max-width: 360px;
+}
+.lg-card-logo img {
+  width: 56px;
+  height: 56px;
+  object-fit: contain;
+}
+.lg-eyebrow {
+  margin-top: 20px;
+  color: var(--accent, #b08a1a);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+.lg-line {
+  display: block;
+  width: 40px;
+  height: 3px;
+  margin: 8px 0 14px;
+  border-radius: 3px;
+  background: var(--accent, #b08a1a);
+}
+.lg-card h1 {
+  font-size: 1.8rem;
+  font-weight: 800;
+  line-height: 1.2;
+  color: var(--primary);
+}
+.lg-desc {
+  margin-top: 8px;
+  line-height: 1.6;
+  color: #5b6b62;
+}
+.lg-alert {
+  margin-top: 18px;
+  padding: 10px 14px;
+  border: 1px solid #f1c4c4;
+  border-radius: 10px;
+  background: #fdeeee;
+  font-size: 0.9rem;
+  color: #a12626;
+}
+.lg-action {
+  margin-top: 24px;
+}
+.lg-session {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 24px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: #f1f7f3;
+}
+.lg-session p {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.9rem;
+  color: #3f5247;
+}
+.lg-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-top: 18px;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: #6b7c72;
+}
+.lg-note svg {
+  flex-shrink: 0;
+  margin-top: 1px;
+  color: var(--primary);
+}
+.lg-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 24px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--primary);
+  text-decoration: none;
+}
+.lg-back:hover {
+  color: var(--accent, #b08a1a);
+}
+
+/* Tablet dan HP: panel foto disembunyikan, kartu saja */
+@media (max-width: 800px) {
+  .lg {
+    padding: 24px 12px;
+  }
+  .lg-shell {
+    grid-template-columns: 1fr;
+    min-height: 0;
+  }
+  .lg-side {
+    display: none;
+  }
+  .lg-panel {
+    padding: 32px 20px;
+  }
+}
