@@ -350,3 +350,954 @@ fieldset.field { border: 0; min-inline-size: 0; }
 .closed-card { max-width: 640px; margin: 32px auto 64px; text-align: center; padding: 40px 24px; }
 .closed-card .big { font-size: 48px; }
 .closed-card h2 { margin: 8px 0; color: var(--primary); }
+
+/* ===== Hero banner baru ===== */
+.hero-banner {
+  position: relative;
+  min-height: 80vh;
+  display: flex;
+  align-items: center;
+  padding: 100px 0 60px;
+  background-color: #0b3d2a; /* cadangan kalau hero.jpg belum ada */
+  background-size: cover;
+  background-position: center;
+  color: #fff;
+}
+.hero-banner-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, rgba(4, 48, 31, 0.65), rgba(4, 48, 31, 0.1));
+}
+.hero-banner-content {
+  position: relative;
+  z-index: 1;
+}
+.hero-banner-inner {
+  max-width: 680px;
+}
+.hero-banner-badge {
+  display: inline-block;
+  padding: 6px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  text-decoration: none;
+}
+.hero-banner-eyebrow {
+  margin: 24px 0 8px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #8fe3ae;
+}
+.hero-banner h1 {
+  margin: 0 0 16px;
+  font-size: clamp(2rem, 5vw, 3.6rem);
+  line-height: 1.1;
+  font-weight: 800;
+  color: #fff;
+}
+.hero-banner-addr {
+  font-size: 1.1rem;
+  opacity: 0.9;
+}
+.hero-banner-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 28px;
+}
+.hero-btn {
+  padding: 14px 28px;
+  border-radius: 999px;
+  font-weight: 700;
+  text-decoration: none;
+}
+.hero-btn-primary {
+  background: #8fe3ae;
+  color: #04301f;
+}
+.hero-btn-primary:hover {
+  background: #a9ecc1;
+}
+.hero-btn-ghost {
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+.hero-btn-ghost:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* ===== Statistik: rata tengah + font sedang ===== */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+.stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 20px 16px;
+}
+.stat .ic {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  margin-bottom: 8px;
+  color: var(--primary);
+}
+.stat .ic svg {
+  width: 22px;
+  height: 22px;
+}
+.stat b {
+  font-size: clamp(1.8rem, 3.5vw, 2.4rem);
+  line-height: 1.1;
+}
+.stat span {
+  margin-top: 4px;
+  font-size: 0.95rem;
+}
+
+@media (max-width: 700px) {
+  .stats {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ===== Logo & brand header ===== */
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.brand-logo-img {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+.brand b {
+  display: block;
+  font-size: 1.05rem;
+  font-weight: 800;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+.brand small {
+  display: block;
+  margin-top: 2px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--primary);
+}
+
+/* ===== Aksen warna tambahan ===== */
+:root {
+  --accent: #b08a1a;       /* emas, aman dibaca di background terang */
+  --accent-light: #f2d77a; /* emas muda, buat di atas background hijau tua */
+  --accent-soft: #f6ecc8;  /* emas pucat, buat background badge */
+  --green-dark: #0b3d2a;
+}
+
+/* Label kecil di atas judul jadi emas */
+.eyebrow {
+  color: var(--accent);
+}
+
+/* Kartu statistik jadi hijau tua, angka dan ikon emas */
+.stat {
+  background: var(--green-dark);
+  color: #fff;
+}
+.stat b {
+  color: var(--accent-light);
+}
+.stat .ic {
+  background: rgba(255, 255, 255, 0.12);
+  color: var(--accent-light);
+  border-radius: 50%;
+}
+
+/* Prestasi: medali dan badge emas */
+.medal {
+  color: var(--accent);
+}
+.achv .badge {
+  background: var(--accent-soft);
+  color: #7a5c00;
+}
+
+/* Hero: overlay lebih gelap biar teks kebaca di atas foto yang ramai */
+.hero-banner-overlay {
+  background: linear-gradient(90deg, rgba(4, 48, 31, 0.88), rgba(4, 48, 31, 0.45));
+}
+
+/* ===== Warna latar per section ===== */
+:root {
+  --bg-mint: #e8f3ec;   /* hijau mint tipis */
+  --bg-gold: #f3f3f1;   /* krem emas pucat */
+  --bg-green: #eafff7;  /* hijau tua */
+}
+
+/* Guru & Staf (section ke-5 di beranda): mint */
+main > section:nth-of-type(5) {
+  background: var(--bg-mint);
+}
+
+/* Fasilitas: krem emas pucat */
+#fasilitas {
+  background: var(--bg-gold);
+}
+
+/* Prestasi: hijau tua, panel putih di dalamnya jadi menonjol */
+#prestasi {
+  background: var(--bg-green);
+}
+
+/* Ekstrakurikuler: putih */
+#ekskul {
+  background: #ffffff;
+}
+
+/* Berita: mint */
+#berita {
+  background: var(--bg-mint);
+}
+
+/* Kartu statistik: putih */
+.stat {
+  background: #ffffff;
+  color: var(--text, #1f2937);
+  box-shadow: 0 2px 12px rgba(11, 61, 42, 0.08);
+}
+.stat b {
+  color: var(--primary);
+}
+.stat .ic {
+  background: var(--bg-mint, #e8f3ec);
+  color: var(--primary);
+}
+.stat span {
+  color: #4b5563 !important;
+}
+
+/* ===== Sambutan kepala sekolah: teks kiri, foto 3:4 kanan ===== */
+#sambutan {
+  background: #ffffff;
+}
+.sambutan-grid {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 48px;
+  align-items: center;
+}
+.sambutan-text blockquote {
+  margin: 12px 0 20px;
+  padding-left: 20px;
+  border-left: 4px solid var(--accent);
+  font-size: 1.25rem;
+  font-style: italic;
+  color: var(--primary);
+}
+.sambutan-name {
+  margin-top: 24px;
+}
+.sambutan-name b {
+  display: block;
+  font-size: 1.1rem;
+  color: var(--primary);
+}
+.sambutan-name span {
+  font-size: 0.95rem;
+  opacity: 0.8;
+}
+.sambutan-photo {
+  aspect-ratio: 3 / 4;
+  width: 100%;
+  border-radius: 20px;
+  background-color: #0b3d2a;
+  background-size: cover;
+  background-position: center top;
+  box-shadow: 0 10px 30px rgba(11, 61, 42, 0.18);
+}
+@media (max-width: 800px) {
+  .sambutan-grid {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+  .sambutan-photo {
+    max-width: 260px;
+    margin: 0 auto;
+  }
+}
+
+.sambutan-photo {
+  position: relative;
+  overflow: hidden;
+  margin: 0;
+  aspect-ratio: 3 / 4;
+  width: 100%;
+  border-radius: 20px;
+  background-color: #0b3d2a; 
+  background-size: cover;
+  background-position: center top;
+  box-shadow: 0 10px 30px rgba(11, 61, 42, 0.18);
+}
+.sambutan-photo figcaption {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 56px 20px 20px;
+  background: linear-gradient(to top, rgba(4, 48, 31, 0.92), rgba(4, 48, 31, 0));
+  color: #fff;
+}
+.sambutan-photo figcaption b {
+  display: block;
+  font-size: 1.25rem;
+  line-height: 1.2;
+}
+.sambutan-photo figcaption span {
+  display: block;
+  margin-top: 4px;
+  font-size: 0.85rem;
+  opacity: 0.9;
+}
+
+/* ===== Fasilitas: zigzag foto + keterangan ===== */
+.fac-list {
+  display: grid;
+  gap: 48px;
+  margin-top: 32px;
+}
+.fac-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+  align-items: center;
+}
+.fac-photo {
+  aspect-ratio: 16 / 10;
+  width: 100%;
+  border-radius: 16px;
+  background-color: #c9d1da; /* abu-abu cadangan kalau foto belum ada */
+  background-size: cover;
+  background-position: center;
+  box-shadow: 0 8px 24px rgba(11, 61, 42, 0.15);
+}
+.fac-text h3 {
+  margin-bottom: 10px;
+  font-size: 1.5rem;
+  color: var(--primary);
+}
+.fac-text p {
+  font-size: 1.05rem;
+  line-height: 1.7;
+}
+
+/* Baris genap: teks di kiri, foto di kanan */
+.fac-row:nth-child(even) .fac-photo {
+  order: 2;
+}
+.fac-row:nth-child(even) .fac-text {
+  order: 1;
+}
+
+@media (max-width: 800px) {
+  .fac-row {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  /* Di HP selalu foto dulu, baru keterangan */
+  .fac-row:nth-child(even) .fac-photo,
+  .fac-row:nth-child(even) .fac-text {
+    order: 0;
+  }
+}
+
+/* Keterangan Ruang Kelas (baris pertama) rata kanan, hanya di layar lebar */
+@media (min-width: 801px) {
+  .fac-row:nth-child(1) .fac-text {
+    text-align: right;
+  }
+}
+
+/* ===== Visi & Misi: teks rata kiri, foto landscape di kanan ===== */
+#program {
+  background: var(--bg-gold, #faf3df);
+}
+.vm-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+  align-items: center;
+}
+/* kolom teks di kiri */
+.vm-grid > div:not(.vm-photo) {
+  order: 1;
+  text-align: left;
+}
+/* foto di kanan */
+.vm-photo {
+  order: 2;
+  aspect-ratio: 4 / 3;
+  width: 100%;
+  border-radius: 20px;
+  background-color: #0b3d2a; /* cadangan kalau sekolah.jpg belum ada */
+  background-size: cover;
+  background-position: center;
+  box-shadow: 0 10px 30px rgba(11, 61, 42, 0.18);
+}
+.vm-block {
+  margin-top: 24px;
+}
+.vm-block h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  color: var(--primary);
+}
+.vm-block h3 svg {
+  flex-shrink: 0;
+}
+.vm-list {
+  list-style: none;
+  padding: 0;
+  margin: 12px 0 0;
+  display: grid;
+  gap: 10px;
+}
+.vm-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+.vm-list li svg {
+  flex-shrink: 0;
+  margin-top: 3px;
+  color: var(--accent, #b08a1a);
+}
+
+@media (max-width: 800px) {
+  .vm-grid {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+  /* di HP: foto dulu, baru teks */
+  .vm-grid > div:not(.vm-photo),
+  .vm-photo {
+    order: 0;
+  }
+}
+
+.vm-photo {
+  margin-top: 40px; /* naikkan angkanya biar fotonya turun */
+}
+
+/* ===== Tenaga Pendidik: judul di atas, grid 6 kolom ===== */
+.tp-layout {
+  display: block;
+}
+.tp-head {
+  max-width: 640px;
+  margin: 0 auto 40px;
+  text-align: center;
+}
+.tp-head .section-title {
+  margin-bottom: 8px;
+}
+.tp-sub {
+  opacity: 0.8;
+}
+.tp-grid {
+  --tp-gap: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center; /* baris terakhir otomatis rata tengah */
+  gap: 36px var(--tp-gap);
+}
+.tp-card {
+  width: calc((100% - 4 * var(--tp-gap)) / 5); /* 5 kolom */
+  text-align: center;
+}
+.tp-card h3 {
+  margin: 14px 0 4px;
+  font-size: 0.95rem;
+  line-height: 1.3;
+}
+.tp-card p {
+  font-size: 0.85rem;
+  opacity: 0.8;
+}
+.tp-foto {
+  width: 100%;
+  max-width: 120px;
+  aspect-ratio: 1 / 1;
+  margin: 0 auto;
+  border-radius: 50%;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 4px 14px rgba(11, 61, 42, 0.15);
+}
+.tp-foto img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+}
+.tp-foto-inisial {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--primary);
+  color: #fff;
+  font-size: 1.8rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+/* HP dan layar kecil: 2 kolom (10 guru jadi 5 baris, tidak ada sisa) */
+@media (max-width: 700px) {
+  .tp-card {
+    width: calc((100% - var(--tp-gap)) / 2);
+  }
+}
+
+/* ===== Prestasi: latar soft green ===== */
+#prestasi {
+  background: #dcebe0 !important;
+}
+#prestasi .achv-panel {
+  background: #ffffff;
+  border: 1px solid #c9dfd0;
+  box-shadow: 0 8px 24px rgba(11, 61, 42, 0.1);
+}
+#prestasi .achv {
+  background: #f1f7f3;
+  border: 1px solid #d6e7dc;
+}
+#prestasi .achv h3 {
+  color: var(--primary);
+}
+#prestasi .achv .badge {
+  background: #f6ecc8;
+  color: #7a5c00;
+}
+#prestasi .medal {
+  color: #b08a1a;
+}
+#prestasi .achv-head .chip {
+  background: #e3efe7;
+  color: var(--primary);
+}
+
+/* ===== Ekskul slider ===== */
+.ek {
+  position: relative;
+  margin-top: 24px;
+  padding: 0 56px;
+}
+.ek-viewport {
+  overflow: hidden;
+  border-radius: 20px;
+  background: #f4f8f5;
+  border: 1px solid #dcebe2;
+}
+.ek-track {
+  display: flex;
+  transition: transform 0.45s ease;
+}
+.ek-slide {
+  flex: 0 0 100%;
+  min-width: 0;
+  padding: 32px;
+  /* slide yang tidak aktif disembunyikan (tidak bisa difokus), setelah animasi geser selesai */
+  visibility: hidden;
+  transition: visibility 0s linear 0.45s;
+}
+.ek-slide.is-active {
+  visibility: visible;
+  transition-delay: 0s;
+}
+
+/* Slide Pramuka & Silat: media kiri, keterangan kanan */
+.ek-feature {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+  gap: 36px;
+  align-items: center;
+  margin-top: 8px;
+}
+.ek-media {
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  border-radius: 14px;
+  background: #0b3d2a; /* cadangan kalau foto/video belum ada */
+  box-shadow: 0 8px 24px rgba(11, 61, 42, 0.18);
+}
+.ek-img {
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+}
+.ek-media video,
+.ek-media iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  object-fit: cover;
+  background: #000;
+}
+.ek-text h3 {
+  margin: 4px 0 10px;
+  font-size: 1.6rem;
+  color: var(--primary);
+}
+.ek-text p:not(.eyebrow) {
+  font-size: 1.05rem;
+  line-height: 1.7;
+}
+
+/* Slide Ekskul Lainnya: 3 kartu atas, 2 kartu bawah rata tengah */
+.ek-others {
+  --ek-gap: 16px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--ek-gap);
+  margin-top: 16px;
+}
+.ek-card {
+  width: calc((100% - 2 * var(--ek-gap)) / 3);
+  padding: 20px;
+  border-radius: 14px;
+  background: #fff;
+  border: 1px solid #e3ece6;
+}
+.ek-card-ic {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  margin-bottom: 10px;
+  border-radius: 12px;
+  background: #e8f3ec;
+  color: var(--primary);
+}
+.ek-card h4 {
+  margin-bottom: 6px;
+  font-size: 1.05rem;
+  color: var(--primary);
+}
+.ek-card p {
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+/* Panah dan titik navigasi */
+.ek-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--primary);
+  color: #fff;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(11, 61, 42, 0.25);
+}
+.ek-prev {
+  left: 0;
+}
+.ek-next {
+  right: 0;
+}
+.ek-dots {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 16px;
+}
+.ek-dot {
+  width: 10px;
+  height: 10px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: #b9d3c2;
+  cursor: pointer;
+  transition: width 0.25s ease, background 0.25s ease;
+}
+.ek-dot.is-active {
+  width: 26px;
+  background: var(--primary);
+}
+
+@media (max-width: 800px) {
+  .ek {
+    padding: 0 40px;
+  }
+  .ek-nav {
+    width: 34px;
+    height: 34px;
+  }
+  .ek-slide {
+    padding: 20px;
+  }
+  .ek-feature {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  .ek-card {
+    width: calc((100% - var(--ek-gap)) / 2);
+  }
+}
+@media (max-width: 480px) {
+  .ek-card {
+    width: 100%;
+  }
+}
+
+/* Isi slide rata tengah vertikal */
+.ek-slide {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* ===== Footer: hijau gelap, 3 kolom ===== */
+.ft {
+  background: #0b3d2a;
+  color: #cfe3d6;
+  padding: 64px 0 0;
+}
+.ft a {
+  color: inherit;
+  text-decoration: none;
+}
+.ft-grid {
+  display: grid;
+  grid-template-columns: 1.3fr 0.8fr 1.6fr;
+  gap: 48px;
+}
+
+/* Kolom 1 */
+.ft-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.ft-brand img {
+  width: 52px;
+  height: 52px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+.ft-brand b {
+  display: block;
+  color: #fff;
+  font-size: 1.05rem;
+  font-weight: 800;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+.ft-brand small {
+  display: block;
+  margin-top: 2px;
+  color: var(--accent-light, #f2d77a);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+.ft-visi {
+  margin-top: 20px;
+  font-style: italic;
+  line-height: 1.7;
+  color: #b9d3c2;
+}
+.ft-meta {
+  margin-top: 16px;
+  font-size: 0.85rem;
+  color: #9dbba8;
+}
+.ft-meta b {
+  color: #fff;
+}
+
+/* Judul kolom */
+.ft h4 {
+  margin-bottom: 20px;
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+/* Kolom 2: tautan */
+.ft-links {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 12px;
+}
+.ft-links li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.ft-links li::before {
+  content: "";
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--accent-light, #f2d77a);
+  flex-shrink: 0;
+}
+.ft-links a:hover,
+.ft-contact a:hover {
+  color: var(--accent-light, #f2d77a);
+}
+.ft .ft-cta {
+  display: inline-block;
+  margin-top: 22px;
+  color: var(--accent-light, #f2d77a);
+  font-weight: 700;
+}
+
+/* Kolom 3: kontak */
+.ft-contact {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 18px;
+}
+.ft-contact li {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  line-height: 1.6;
+}
+.ft-ic {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--accent-light, #f2d77a);
+}
+.ft-contact b {
+  display: block;
+  color: #fff;
+}
+
+/* Baris bawah */
+.ft-bottom {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 12px 24px;
+  margin-top: 48px;
+  padding: 20px 0 28px;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  font-size: 0.85rem;
+  color: #9dbba8;
+}
+.ft-bottom nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+}
+.ft-bottom a:hover {
+  color: #fff;
+}
+
+@media (max-width: 900px) {
+  .ft-grid {
+    grid-template-columns: 1fr;
+    gap: 36px;
+  }
+}
+
+/* ===== Footer: tombol sosial bulat di bawah visi ===== */
+.ft-social {
+  display: flex;
+  gap: 12px;
+  margin-top: 22px;
+}
+.ft-social a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 46px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+.ft-social a:hover {
+  background: var(--accent-light, #f2d77a);
+  border-color: var(--accent-light, #f2d77a);
+  color: #0b3d2a;
+}
+
+/* Menu header */
+.main-nav a {
+  position: relative;
+  background: transparent !important;
+  border-radius: 0 !important;
+}
+.main-nav a:hover {
+  background: transparent !important;
+}
+.main-nav a::after {
+  content: "";
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 2px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--accent, #b08a1a);
+  transform: scaleX(0);
+  transform-origin: center;
+  transition: transform 0.25s ease;
+}
+.main-nav a:hover::after,
+.main-nav a[aria-current="page"]::after {
+  transform: scaleX(1);
+}
+.main-nav a[aria-current="page"] {
+  background: transparent !important;
+  color: var(--primary) !important;
+  font-weight: 600;
+}
