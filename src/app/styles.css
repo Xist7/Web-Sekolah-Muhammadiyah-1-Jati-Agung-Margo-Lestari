@@ -950,6 +950,13 @@ main > section:nth-of-type(5) {
   align-items: center;
   margin-top: 8px;
 }
+
+.ek-feature:not(:has(.ek-media)) {
+  grid-template-columns: 1fr;
+  justify-items: center;
+  text-align: center;
+}
+
 .ek-media {
   aspect-ratio: 16 / 10;
   overflow: hidden;
@@ -1093,6 +1100,43 @@ main > section:nth-of-type(5) {
   display: flex;
   flex-direction: column;
   justify-content: center;
+}
+
+@media (max-width: 768px) {
+  .ek-viewport,
+  .ek-slide,
+  .ek-feature {
+    min-height: 0;
+    height: auto;
+  }
+
+  .ek-feature {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: stretch;
+    gap: 16px;
+    padding: 16px;
+  }
+
+  .ek-media {
+    width: 100%;
+    height: auto;
+    min-height: 0;
+    aspect-ratio: 16 / 9;
+  }
+
+  .ek-media video,
+  .ek-media .ek-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .ek-text {
+    text-align: center;
+    max-width: none;
+  }
 }
 
 /* ===== Footer: hijau gelap, 3 kolom ===== */
