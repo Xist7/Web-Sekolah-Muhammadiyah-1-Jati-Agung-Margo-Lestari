@@ -1,32 +1,24 @@
 import Link from "next/link";
+import { Check, ClipboardList, Eye, Leaf, Newspaper, Target, Trophy } from "lucide-react";
 import { GuruCarousel } from "@/components/guru-carousel";
 import { Reveal } from "@/components/reveal";
+import { HeroBanner } from "@/components/hero-banner";
+import { EkskulSlider } from "@/components/ekskul-slider";
+import { MediaIcon } from "@/components/media-icon";
 import { formatTanggal } from "@/lib/berita/format";
 import { getPublishedPosts } from "@/lib/berita/queries";
+import { getContent, getPpdbStatus } from "@/lib/content/get";
 
-const stats = [
-  { ic: "📅", value: "1993", label: "Sekolah berdiri sejak" },
-  { ic: "🎓", value: "58", label: "Jumlah siswa" },
-  { ic: "👩‍🏫", value: "11", label: "Tenaga pendidik" },
-];
-
-const facilities = [
-  { ic: "🏫", alt: "Ruang kelas", title: "Ruang Kelas", desc: "Ruang belajar yang bersih dan nyaman untuk kegiatan belajar sehari-hari." },
-  { ic: "🏢", alt: "Kantor", title: "Kantor", desc: "Tempat guru dan staf bekerja, sekaligus melayani orang tua dan tamu yang ingin bertanya atau mengurus keperluan sekolah." },
-];
-
-const achievements = [
-  { badge: "-", title: "-", desc: "-", by: "-" },
-  { badge: "-", title: "-", desc: "-", by: "-" },
-];
-
-const eskul = [
-  { e: "🤖", name: "Robotik & AI", sub: "STEM Terapan" },
-  { e: "🎤", name: "English Debate", sub: "Model UN & Speech" },
-  { e: "🌱", name: "Eco Hidroponik", sub: "Urban Farming Club" },
-  { e: "🥋", name: "Taekwondo & Silat", sub: "Bela Diri Prestasi" },
-  { e: "🏀", name: "Basket & Futsal", sub: "Lapangan Standar FIBA" },
-  { e: "🎶", name: "Seni & Musik", sub: "Ensembel & Ilustrasi" },
+const visi =
+  "“Terbentuknya generasi Qurani yang berakhlak mulia, berkemajuan, dan unggul dalam ilmu pengetahuan serta teknologi”";
+const misi = [
+  "Menanamkan nilai-nilai Al-Qur’an dan As-Sunnah sebagai dasar pembentukan pribadi muslim yang beriman, bertakwa, dan berakhlak mulia.",
+  "Menyelenggarakan pendidikan yang mengintegrasikan iman, ilmu, dan amal dalam semangat Islam Berkemajuan.",
+  "Mengembangkan potensi peserta didik secara optimal, baik akademik maupun non-akademik, berbasis sains, teknologi, dan kreativitas.",
+  "Membentuk karakter siswa yang disiplin, mandiri, bertanggung jawab, dan peduli terhadap sesama serta lingkungan.",
+  "Menciptakan lingkungan sekolah yang islami, inklusif, dan berwawasan kebangsaan.",
+  "Menumbuhkan semangat tajdid (pembaruan), berpikir kritis, dan adaptif terhadap perkembangan zaman.",
+  "Memperkuat kemitraan antara sekolah, orang tua, dan masyarakat dalam mendukung pendidikan yang holistik.",
 ];
 
 // Beranda diperbarui otomatis saat admin menerbitkan berita; revalidate = cadangan tiap 5 menit
@@ -34,14 +26,27 @@ export const revalidate = 300;
 
 // Ikon pengganti bila berita belum punya gambar sampul
 const newsIcon = (category: string) =>
-  /prestasi|juara/i.test(category) ? "🏆" : /ppdb|pengumuman/i.test(category) ? "📋" : /kegiatan|agenda/i.test(category) ? "🌿" : "📰";
+  /prestasi|juara/i.test(category) ? Trophy : /ppdb|pengumuman/i.test(category) ? ClipboardList : /kegiatan|agenda/i.test(category) ? Leaf : Newspaper;
 
 export default async function HomePage() {
+  // Isi beranda diambil dari panel admin (Pengaturan → Beranda); kalau belum diedit, pakai isi bawaan
+  const [hero, sambutan, guru, fasilitas, prestasi, ppdb] = await Promise.all([
+    getContent("hero"),
+    getContent("sambutan"),
+    getContent("guru"),
+    getContent("fasilitas"),
+    getContent("prestasi"),
+    getPpdbStatus(),
+  ]);
+  const kepala = guru.daftar.find((g) => g.kepalaSekolah);
+  const guruLain = guru.daftar.filter((g) => !g.kepalaSekolah);
+  const paragrafSambutan = sambutan.isi.split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean);
+
   // Berita diambil dari panel admin (Pengaturan → Berita): 3 terbaru yang sudah terbit
   const news = (await getPublishedPosts(3)).map((p) => ({
     slug: p.slug,
     cover: p.coverUrl,
-    ic: newsIcon(p.category),
+    Icon: newsIcon(p.category),
     date: p.publishedAt?.toISOString() ?? "",
     dateLabel: formatTanggal(p.publishedAt),
     tag: p.category,
@@ -51,37 +56,20 @@ export default async function HomePage() {
 
   return (
     <main id="beranda">
-      {/* HERO (tidak dibungkus, langsung tampil) */}
-      <section className="hero">
+      {/* HERO BARU */}
+      <HeroBanner />
+
+      {/* STATISTIK (dari admin) */}
+      <section className="section" style={{ paddingTop: 32 }}>
         <div className="container">
           <Link className="chip" href="/ppdb">
-            <span className="dot" /> Penerimaan Siswa Baru (PPDB) 2026/2027 Telah Dibuka
+            <span className="dot" /> {ppdb.isOpen ? hero.chipBuka : hero.chipTutup}
           </Link>
-          <div className="hero-grid">
-            <div>
-              <p className="eyebrow" style={{ marginBottom: 8 }}>Sekolah Swasta Islam · Zona Nyaman &amp; Menyenangkan</p>
-              <h1>SMP MUHAMMADIYAH 1 JATI AGUNG</h1>
-              <p className="addr">Jl. Hadi Subroto, Margo Lestari, Kec. Jati Agung, Kabupaten Lampung Selatan, Lampung</p>
-              <div className="hero-ctas">
-                <Link className="btn btn-primary" href="/ppdb">Daftar PPDB 2026/2027 →</Link>
-                <a className="btn btn-soft" href="#profil">🏫 Profil Sekolah</a>
-              </div>
-            </div>
-            <div className="hero-visual">
-              <div className="hero-photo">
-                <div className="ph" role="img" aria-label="Foto lingkungan sekolah">🏫</div>
-                <div className="float-pill">
-                  <span className="ic">🏫</span>
-                  <span><strong>Sekolah Swasta Islam</strong><small>Zona nyaman &amp; menyenangkan</small></span>
-                </div>
-              </div>
-            </div>
-          </div>
           <div className="stats" id="profil">
-            {stats.map((s) => (
-              <div className="stat" key={s.label}>
-                <div className="ic">{s.ic}</div>
-                <b>{s.value}</b>
+            {hero.statistik.map((s, i) => (
+              <div className="stat" key={i}>
+                <div className="ic"><MediaIcon m={s.ikon} /></div>
+                <b>{s.angka}</b>
                 <span>{s.label}</span>
               </div>
             ))}
@@ -89,50 +77,97 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* SAMBUTAN */}
+      {/* VISI & MISI: foto sekolah 4:3, penjabaran di kiri (id program dipakai menu header) */}
       <section className="section" id="program">
         <div className="container">
           <Reveal>
-            <div className="principal">
-              <figure className="principal-photo">
-                <div className="ph" role="img" aria-label="Foto Kepala Sekolah">👤</div>
-                <figcaption><b>Julianto</b><span>Kepala Sekolah SMP Muhammadiyah 1 Jati Agung</span></figcaption>
-              </figure>
+            <div className="vm-grid">
+              <div
+                className="vm-photo"
+                role="img"
+                aria-label="Foto lingkungan SMP Muhammadiyah 1 Jati Agung"
+                style={{ backgroundImage: "url('/sekolah.jpeg')" }}
+              />
               <div>
-                <p className="eyebrow">Visi dan Misi Sekolah</p>
-                <blockquote>“Setiap anak adalah bibit unggul yang bertumbuh optimal di tanah yang penuh kasih dan keteladanan.”</blockquote>
-                <p>
-                  Selamat datang di SMP Muhammadiyah 1 Jati Agung. Memasuki usia remaja awal adalah fase transisi krusial
-                  di mana rasa ingin tahu, kecerdasan moral, dan kesadaran sosial mulai berakar kuat. Kami meyakini bahwa
-                  pendidikan sejati bukan semata tentang tumpukan nilai kognitif, melainkan penempaan integritas budi
-                  pekerti yang selaras dengan kecintaan terhadap sesama dan alam semesta.
-                </p>
+                <p className="eyebrow">Arah &amp; Tujuan Sekolah</p>
+                <h2 className="section-title">Visi &amp; Misi</h2>
+
+                <div className="vm-block">
+                  <h3><Eye size={20} /> Visi</h3>
+                  <p>{visi}</p>
+                </div>
+
+                <div className="vm-block">
+                  <h3><Target size={20} /> Misi</h3>
+                  <ul className="vm-list">
+                    {misi.map((m) => (
+                      <li key={m}>
+                        <Check size={18} strokeWidth={2.5} />
+                        <span>{m}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               </div>
             </div>
           </Reveal>
         </div>
       </section>
 
-      <Reveal>
-        <GuruCarousel />
-      </Reveal>
+      {/* SAMBUTAN KEPALA SEKOLAH: teks dari admin, tampilan sambutan-grid */}
+      <section className="section" id="sambutan">
+        <div className="container">
+          <Reveal>
+            <div className="sambutan-grid">
+              <div className="sambutan-text">
+                {sambutan.eyebrow && <p className="eyebrow">{sambutan.eyebrow}</p>}
+                {sambutan.kutipan && <blockquote>{sambutan.kutipan}</blockquote>}
+                {paragrafSambutan.map((p, i) => <p key={i}>{p}</p>)}
+              </div>
+              <figure
+                className="sambutan-photo"
+                style={{ backgroundImage: `url('${kepala?.foto || "/kepsek.jpeg"}')` }}
+              >
+                <figcaption>
+                  <b>{kepala?.nama ?? "Julianto, M.Pd"}</b>
+                  <span>{kepala?.mapel || "Kepala Sekolah SMP Muhammadiyah 1 Jati Agung"}</span>
+                </figcaption>
+              </figure>
+            </div>
+          </Reveal>
+        </div>
+      </section>
 
-      {/* FASILITAS */}
+      <GuruCarousel eyebrow={guru.eyebrow} judul={guru.judul} subjudul={guru.subjudul} daftar={guruLain} />
+
+      {/* FASILITAS: zigzag, baris 1 foto kiri + keterangan kanan, baris 2 sebaliknya */}
       <section className="section" id="fasilitas">
         <div className="container">
           <Reveal>
             <div className="section-head center">
-              <p className="eyebrow">Sarana &amp; Prasarana</p>
-              <h2 className="section-title">Fasilitas SMP Muhammadiyah 1 Jati Agung</h2>
+              {fasilitas.eyebrow && <p className="eyebrow">{fasilitas.eyebrow}</p>}
+              <h2 className="section-title">{fasilitas.judul}</h2>
             </div>
-            <div className="grid-2">
-              {facilities.map((f) => (
-                <article className="card fac" key={f.title}>
-                  <div className="ph" role="img" aria-label={f.alt}></div>
-                  <h3>{f.title}</h3>
-                  <p>{f.desc}</p>
-                </article>
-              ))}
+            <div className="fac-list">
+              {fasilitas.daftar.map((f, i) => {
+                const img = f.media.jenis === "gambar" ? f.media.gambar : "";
+                return (
+                  <div className="fac-row" key={i}>
+                    <div
+                      className="fac-photo"
+                      role="img"
+                      aria-label={f.judul}
+                      style={img ? { backgroundImage: `url('${img}')` } : undefined}
+                    >
+                      {!img && f.media.emoji}
+                    </div>
+                    <div className="fac-text">
+                      <h3>{f.judul}</h3>
+                      <p>{f.deskripsi}</p>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </Reveal>
         </div>
@@ -145,19 +180,20 @@ export default async function HomePage() {
             <div className="achv-panel">
               <div className="achv-head">
                 <div>
-                  <h2 className="section-title">Prestasi Siswa</h2>
+                  {prestasi.eyebrow && <p className="eyebrow">{prestasi.eyebrow}</p>}
+                  <h2 className="section-title">{prestasi.judul}</h2>
                 </div>
-                <span className="chip">Tahun Ajaran 2026/2027</span>
+                {prestasi.chip && <span className="chip">{prestasi.chip}</span>}
               </div>
               <div className="achv-grid">
-                {achievements.map((a, i) => (
-                    <article className="achv" key={i}>
+                {prestasi.daftar.map((a, i) => (
+                  <article className="achv" key={i}>
                     <div>
-                      <div className="achv-top"><span className="medal">🏅</span><span className="badge">{a.badge}</span></div>
-                      <h3>{a.title}</h3>
-                      <p>{a.desc}</p>
+                      <div className="achv-top"><span className="medal"><MediaIcon m={a.media} /></span>{a.lencana && <span className="badge">{a.lencana}</span>}</div>
+                      <h3>{a.judul}</h3>
+                      <p>{a.deskripsi}</p>
                     </div>
-                    <small>Oleh: {a.by}</small>
+                    {a.oleh && <small>Oleh: {a.oleh}</small>}
                   </article>
                 ))}
               </div>
@@ -166,7 +202,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* EKSKUL */}
+      {/* EKSKUL: slider (Pramuka, Silat, Ekskul Lainnya) */}
       <section className="section" id="ekskul">
         <div className="container">
           <Reveal>
@@ -174,27 +210,7 @@ export default async function HomePage() {
               <p className="eyebrow">Ekstrakurikuler</p>
               <h2 className="section-title">Ekstrakurikuler Pilihan &amp; Bakat Minat</h2>
             </div>
-            <div className="eskul-panel">
-              <div className="eskul-chips">
-                {eskul.map((e) => (
-                  <div className="eskul-chip" key={e.name}>
-                    <div className="e">{e.e}</div>
-                    <b>{e.name}</b>
-                    <span>{e.sub}</span>
-                  </div>
-                ))}
-              </div>
-              <div className="grid-2">
-                <article className="card fac">
-                  <h3>🤖 Robotik &amp; AI</h3>
-                  <p>Mengembangkan kemampuan STEM melalui proyek robotika dan IoT yang terstruktur.</p>
-                </article>
-                <article className="card fac">
-                  <h3>🌱 Eco Hidroponik</h3>
-                  <p>Praktik hidroponik dan konservasi tanaman untuk memupuk rasa hormat pada alam.</p>
-                </article>
-              </div>
-            </div>
+            <EkskulSlider />
           </Reveal>
         </div>
       </section>
@@ -212,7 +228,7 @@ export default async function HomePage() {
                 <article className="card news" key={n.slug}>
                   <div className="ph" role="img" aria-label={n.title} style={n.cover ? { padding: 0, overflow: "hidden" } : undefined}>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    {n.cover ? <img src={n.cover} alt="" loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : n.ic}
+                    {n.cover ? <img src={n.cover} alt="" loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : <n.Icon size={36} strokeWidth={1.5} />}
                   </div>
                   <div className="news-body">
                     <div className="news-meta"><time dateTime={n.date}>{n.dateLabel}</time>{n.tag && <>•<b>{n.tag}</b></>}</div>

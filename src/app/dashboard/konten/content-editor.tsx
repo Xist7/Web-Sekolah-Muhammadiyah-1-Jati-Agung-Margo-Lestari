@@ -2,11 +2,11 @@
 
 import { useEffect, useId, useRef, useState, useTransition } from "react";
 import { useConfirm } from "@/components/admin/confirm-dialog";
-import { resetContent, saveContent, uploadImage } from "@/lib/admin/content-actions";
+import { toast } from "@/components/admin/toast";
+import { resetContent, saveContent } from "@/lib/admin/content-actions";
 import type { FieldDef, Media } from "@/lib/content/defaults";
 import { blank } from "@/lib/content/shape";
-import { compressImage } from "@/lib/image";
-import { MediaPicker } from "../media/media-picker";
+import { MediaPicker, useUploader } from "../media/media-picker";
 
 type Json = string | number | boolean | null | Json[] | { [k: string]: Json };
 type Obj = { [k: string]: Json };
@@ -48,7 +48,8 @@ export function ContentEditor({ sectionKey, fields, initial, template }: { secti
   function save() {
     start(async () => {
       const r = await saveContent(sectionKey, JSON.stringify(data));
-      setMsg({ ok: r.ok, text: r.message });
+      toast.result(r);
+      setMsg(r.ok ? undefined : { ok: false, text: r.message });
       if (r.ok) setDirty(false);
     });
   }
@@ -59,11 +60,13 @@ export function ContentEditor({ sectionKey, fields, initial, template }: { secti
       message: "Semua teks, gambar, dan poin di bagian ini akan diganti isi bawaan. Perubahan Anda akan hilang.",
       confirmText: "Ya, kembalikan",
       danger: true,
+      delay: 3,
     });
     if (!ok) return;
     start(async () => {
       const r = await resetContent(sectionKey);
-      setMsg({ ok: r.ok, text: r.message });
+      toast.result(r);
+      setMsg(r.ok ? undefined : { ok: false, text: r.message });
       if (r.ok) {
         setData(template);
         setDirty(false);
@@ -178,32 +181,135 @@ function FieldInput({ def, value, onChange }: { def: FieldDef; value: Json; onCh
   }
 }
 
-// ───────────────────────── Daftar poin (replicator) ─────────────────────────
+// ───────────────────────── Daftar poin (drag & menu ⋮) ─────────────────────────
+
+type MenuItem = { label: string; onClick: () => void; danger?: boolean; icon?: string };
+
+/** Tombol ⋮ dengan menu kecil (tutup saat klik di luar / Esc). */
+function RowMenu({ items, label }: { items: MenuItem[]; label: string }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const out = (e: PointerEvent) => {
+      if (!ref.current?.contains(e.target as Node)) setOpen(false);
+    };
+    const esc = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpen(false);
+    };
+    document.addEventListener("pointerdown", out);
+    document.addEventListener("keydown", esc);
+    return () => {
+      document.removeEventListener("pointerdown", out);
+      document.removeEventListener("keydown", esc);
+    };
+  }, [open]);
+
+  return (
+    <div ref={ref} className="relative flex-none">
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        aria-haspopup="menu"
+        aria-expanded={open}
+        aria-label={`Menu ${label}`}
+        className="grid h-9 w-9 place-items-center rounded-lg text-xl leading-none text-slate-500 hover:bg-slate-100 hover:text-slate-800"
+      >
+        ⋮
+      </button>
+      {open && (
+        <ul role="menu" className="absolute top-full right-0 z-20 mt-1 w-56 overflow-hidden rounded-xl bg-white py-1 text-sm shadow-xl ring-1 ring-slate-200">
+          {items.map((m) => (
+            <li key={m.label} role="none">
+              <button
+                type="button"
+                role="menuitem"
+                onClick={() => {
+                  setOpen(false);
+                  m.onClick();
+                }}
+                className={`flex w-full items-center gap-2.5 px-4 py-2.5 text-left ${m.danger ? "text-red-600 hover:bg-red-50" : "text-slate-700 hover:bg-slate-50"}`}
+              >
+                <span className="w-5 text-center" aria-hidden="true">{m.icon}</span>
+                {m.label}
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
 
 function ListEditor({ def, value, template, onChange }: { def: Extract<FieldDef, { type: "list" }>; value: Obj[]; template: Obj; onChange: (v: Obj[]) => void }) {
   const [openIdx, setOpenIdx] = useState<number | null>(null);
+  const [dragIdx, setDragIdx] = useState<number | null>(null);
   const [dialog, confirm] = useConfirm();
+  const listRef = useRef<HTMLOListElement>(null);
+  // Nilai terbaru untuk handler drag (dipasang di window)
+  const latest = useRef({ value, onChange, openIdx });
+  useEffect(() => {
+    latest.current = { value, onChange, openIdx };
+  });
+  const isDragging = dragIdx !== null;
+  const dragStart = useRef(0); // posisi awal baris yang sedang digeser
 
   const titleOf = (item: Obj, i: number) => {
     const t = def.titleKey ? item[def.titleKey] : undefined;
     return typeof t === "string" && t.trim() ? t : `${def.itemLabel} #${i + 1}`;
   };
-  const mediaKey = def.fields.find((f) => f.type === "media" || f.type === "image")?.k;
+  const mediaField = def.fields.find((f) => f.type === "media" || f.type === "image");
+  const leaderKey = def.leader?.key;
+  const leaderIdx = leaderKey ? value.findIndex((x) => x[leaderKey] === true) : -1;
 
-  const move = (i: number, d: number) => {
-    const next = [...value];
-    [next[i], next[i + d]] = [next[i + d], next[i]];
-    onChange(next);
-    if (openIdx === i) setOpenIdx(i + d);
-  };
+  // ── Drag untuk mengurutkan (mouse & layar sentuh) ──
+  useEffect(() => {
+    if (!isDragging) return;
+    let current = dragStart.current;
+    const scroller = listRef.current?.closest(".overflow-y-auto") as HTMLElement | null;
+    const move = (e: PointerEvent) => {
+      // Gulir otomatis saat mendekati tepi layar
+      if (scroller) {
+        if (e.clientY < 90) scroller.scrollBy(0, -14);
+        else if (e.clientY > window.innerHeight - 110) scroller.scrollBy(0, 14);
+      }
+      const row = (document.elementFromPoint(e.clientX, e.clientY) as HTMLElement | null)?.closest<HTMLElement>("[data-row]");
+      if (!row || !listRef.current?.contains(row)) return;
+      const target = Number(row.dataset.row);
+      if (Number.isNaN(target) || target === current) return;
+      const { value: v, onChange: change, openIdx: oi } = latest.current;
+      const next = [...v];
+      const [it] = next.splice(current, 1);
+      next.splice(target, 0, it);
+      change(next);
+      if (oi === current) setOpenIdx(target);
+      current = target;
+      setDragIdx(target);
+    };
+    const end = () => setDragIdx(null);
+    window.addEventListener("pointermove", move);
+    window.addEventListener("pointerup", end);
+    window.addEventListener("pointercancel", end);
+    document.body.style.userSelect = "none";
+    return () => {
+      window.removeEventListener("pointermove", move);
+      window.removeEventListener("pointerup", end);
+      window.removeEventListener("pointercancel", end);
+      document.body.style.userSelect = "";
+    };
+  }, [isDragging]);
+
   const duplicate = (i: number) => {
-    onChange([...value.slice(0, i + 1), structuredClone(value[i]), ...value.slice(i + 1)]);
+    const copy = structuredClone(value[i]);
+    if (leaderKey) copy[leaderKey] = false; // salinan tidak ikut jadi kepala sekolah
+    onChange([...value.slice(0, i + 1), copy, ...value.slice(i + 1)]);
     setOpenIdx(i + 1);
   };
   const remove = async (i: number) => {
     const ok = await confirm({
       title: `Hapus ${def.itemLabel.toLowerCase()} ini?`,
-      message: <>“{titleOf(value[i], i)}” akan dihapus dari <b>{def.label}</b>.</>,
+      message: <>“{titleOf(value[i], i)}” akan dihapus dari <b>{def.label}</b>. Klik “Simpan &amp; Terbitkan” agar tersimpan.</>,
       confirmText: "Ya, hapus",
       danger: true,
     });
@@ -211,23 +317,48 @@ function ListEditor({ def, value, template, onChange }: { def: Extract<FieldDef,
     onChange(value.filter((_, j) => j !== i));
     setOpenIdx(null);
   };
+  const setLeader = (i: number | null) => {
+    if (!leaderKey) return;
+    onChange(value.map((x, j) => ({ ...x, [leaderKey]: j === i })));
+  };
   const add = () => {
     onChange([...value, newItem(def.fields, template)]);
     setOpenIdx(value.length);
   };
 
+  const menuFor = (i: number): MenuItem[] => {
+    const isLeader = i === leaderIdx;
+    const items: MenuItem[] = [{ label: openIdx === i ? "Tutup" : "Edit", icon: "✏️", onClick: () => setOpenIdx(openIdx === i ? null : i) }];
+    if (def.addable) items.push({ label: "Duplikat", icon: "⧉", onClick: () => duplicate(i) });
+    if (def.leader) {
+      if (isLeader) items.push({ label: `Lepas ${def.leader.label}`, icon: "✕", danger: true, onClick: () => setLeader(null) });
+      else if (leaderIdx === -1) items.push({ label: `Jadikan ${def.leader.label}`, icon: "👑", onClick: () => setLeader(i) });
+    }
+    if (def.addable) items.push({ label: "Hapus", icon: "🗑️", danger: true, onClick: () => remove(i) });
+    return items;
+  };
+
   return (
     <section className="rounded-xl bg-white shadow-sm ring-1 ring-slate-200">
       {dialog}
-      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 px-5 py-4">
-        <div>
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 px-4 py-4 sm:px-5">
+        <div className="min-w-0">
           <h2 className="font-semibold text-slate-800">
             {def.label} <span className="text-sm font-normal text-slate-400">({value.length})</span>
           </h2>
           {def.help && <p className="text-xs text-slate-400">{def.help}</p>}
+          {def.leader && (
+            <p className={`mt-1 text-xs ${leaderIdx === -1 ? "text-amber-600" : "text-slate-500"}`}>
+              {leaderIdx === -1 ? (
+                `⚠ Belum ada ${def.leader.label.toLowerCase()}. Buka menu ⋮ pada salah satu ${def.itemLabel.toLowerCase()} → Jadikan ${def.leader.label}.`
+              ) : (
+                <>👑 {def.leader.label}: <b>{titleOf(value[leaderIdx], leaderIdx)}</b></>
+              )}
+            </p>
+          )}
         </div>
         {def.addable ? (
-          <button type="button" onClick={add} className="rounded-lg bg-emerald-700 px-3 py-1.5 text-sm font-semibold text-white hover:bg-emerald-800">
+          <button type="button" onClick={add} className="rounded-lg bg-emerald-700 px-3 py-2 text-sm font-semibold text-white hover:bg-emerald-800">
             + Tambah {def.itemLabel}
           </button>
         ) : (
@@ -237,27 +368,43 @@ function ListEditor({ def, value, template, onChange }: { def: Extract<FieldDef,
 
       {value.length === 0 && <p className="px-5 py-8 text-center text-sm text-slate-400">Belum ada {def.itemLabel.toLowerCase()}.</p>}
 
-      <ol className="divide-y divide-slate-100">
+      <ol ref={listRef} className="divide-y divide-slate-100">
         {value.map((item, i) => {
           const open = openIdx === i;
+          const dragging = dragIdx === i;
+          const isLeader = i === leaderIdx;
           return (
-            <li key={i}>
-              <div className="flex flex-wrap items-center gap-x-3 gap-y-2 px-4 py-3 sm:px-5">
-                <button type="button" onClick={() => setOpenIdx(open ? null : i)} aria-expanded={open} className="flex min-w-0 flex-1 items-center gap-3 text-left">
-                  <span className="text-xs text-slate-400 tabular-nums">{i + 1}.</span>
-                  {mediaKey && <Thumb value={item[mediaKey]} />}
-                  <span className="truncate text-sm font-medium text-slate-700">{titleOf(item, i)}</span>
-                  <span className="ml-auto hidden text-xs text-slate-400 sm:inline">{open ? "▲ Tutup" : "✎ Edit"}</span>
+            <li key={i} data-row={i} className={`transition-colors ${dragging ? "relative z-10 bg-emerald-50 shadow-lg ring-2 ring-emerald-400" : ""}`}>
+              <div className="flex items-center gap-2 px-2 py-2.5 sm:gap-3 sm:px-4">
+                {def.addable ? (
+                  <button
+                    type="button"
+                    onPointerDown={(e) => {
+                      e.preventDefault();
+                      dragStart.current = i;
+                      setDragIdx(i);
+                    }}
+                    className={`grid h-9 w-7 flex-none touch-none place-items-center rounded-md text-lg text-slate-400 hover:bg-slate-100 hover:text-slate-700 ${dragging ? "cursor-grabbing" : "cursor-grab"}`}
+                    aria-label={`Geser untuk mengurutkan ${titleOf(item, i)}`}
+                    title="Tahan & geser untuk mengurutkan"
+                  >
+                    ⠿
+                  </button>
+                ) : (
+                  <span className="w-7 flex-none text-center text-xs text-slate-400 tabular-nums">{i + 1}.</span>
+                )}
+                <button type="button" onClick={() => setOpenIdx(open ? null : i)} aria-expanded={open} className="flex min-w-0 flex-1 items-center gap-3 py-1 text-left">
+                  {mediaField && <Thumb value={item[mediaField.k]} fallback={mediaField.type === "image" ? "👤" : "🖼️"} />}
+                  <span className="min-w-0">
+                    <span className="block truncate text-sm font-medium text-slate-700">{titleOf(item, i)}</span>
+                    {isLeader && <span className="mt-0.5 inline-block rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-semibold text-amber-800">👑 {def.leader?.label}</span>}
+                  </span>
+                  <span className="ml-auto hidden flex-none text-xs text-slate-400 sm:inline">{open ? "▲ Tutup" : "✎ Edit"}</span>
                 </button>
-                {def.addable && <div className="ml-auto flex flex-none gap-1">
-                  <button type="button" className={smallBtn} onClick={() => move(i, -1)} disabled={i === 0} aria-label="Naikkan">↑</button>
-                  <button type="button" className={smallBtn} onClick={() => move(i, 1)} disabled={i === value.length - 1} aria-label="Turunkan">↓</button>
-                  <button type="button" className={smallBtn} onClick={() => duplicate(i)} aria-label="Gandakan" title="Gandakan">⧉</button>
-                  <button type="button" className={`${smallBtn} text-red-600`} onClick={() => remove(i)}>Hapus</button>
-                </div>}
+                {(def.addable || def.leader) && <RowMenu items={menuFor(i)} label={titleOf(item, i)} />}
               </div>
               {open && (
-                <div className="space-y-4 bg-slate-50 px-5 py-4">
+                <div className="space-y-4 bg-slate-50 px-4 py-4 sm:px-5">
                   <FieldsGrid fields={def.fields} value={item} template={template} onChange={(v) => onChange(value.map((x, j) => (j === i ? v : x)))} />
                 </div>
               )}
@@ -269,13 +416,13 @@ function ListEditor({ def, value, template, onChange }: { def: Extract<FieldDef,
   );
 }
 
-function Thumb({ value }: { value: Json }) {
+function Thumb({ value, fallback }: { value: Json; fallback: string }) {
   const m = typeof value === "string" ? { jenis: "gambar", gambar: value, emoji: "" } : (value as unknown as Media | null);
   const img = m?.jenis === "gambar" && m.gambar;
   return (
-    <span className="grid h-8 w-8 flex-none place-items-center overflow-hidden rounded-md bg-emerald-50 text-base">
+    <span className="grid h-10 w-10 flex-none place-items-center overflow-hidden rounded-lg bg-emerald-50 text-lg">
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      {img ? <img src={m.gambar} alt="" className="h-full w-full object-cover" /> : m?.emoji || "·"}
+      {img ? <img src={m.gambar} alt="" className="h-full w-full object-cover" /> : m?.emoji || fallback}
     </span>
   );
 }
@@ -349,37 +496,31 @@ function MediaInput({ def, value, onChange }: { def: FieldDef; value: Media | nu
 export function ImageInput({ value, onChange }: { value: string; onChange: (v: string) => void }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [picking, setPicking] = useState(false);
-  const [busy, setBusy] = useState(false);
-  const [err, setErr] = useState<string>();
-
-  async function pick(file?: File) {
-    if (!file) return;
-    setErr(undefined);
-    setBusy(true);
-    try {
-      // Foto website: kompres JPEG 70%, maks. 1920 px
-      const small = await compressImage(file, { quality: 0.7, maxSide: 1920 });
-      const fd = new FormData();
-      fd.set("file", small);
-      const r = await uploadImage(fd);
-      if (r.ok) onChange(r.url);
-      else setErr(r.message);
-    } catch {
-      setErr("Gagal mengunggah. Coba lagi.");
-    } finally {
-      setBusy(false);
-      if (inputRef.current) inputRef.current.value = "";
-    }
-  }
+  // Unggah baru: buka editor crop dulu, lalu kompres (JPEG 70%) & simpan ke Media
+  const { busy, err, upload, editor } = useUploader((done) => {
+    onChange(done[0].url);
+    toast.success("Gambar diunggah. Klik Simpan agar tampil di website.");
+  });
 
   return (
     <div className="flex items-center gap-3">
+      {editor}
       <div className="grid h-20 w-28 flex-none place-items-center overflow-hidden rounded-lg bg-slate-200 text-[11px] text-slate-500">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         {value ? <img src={value} alt="Pratinjau" className="h-full w-full object-cover" /> : "Belum ada gambar"}
       </div>
       <div className="flex flex-col gap-1">
-        <input ref={inputRef} type="file" accept="image/jpeg,image/png,image/webp,image/gif" className="sr-only" tabIndex={-1} onChange={(e) => pick(e.target.files?.[0])} />
+        <input
+          ref={inputRef}
+          type="file"
+          accept="image/jpeg,image/png,image/webp,image/gif"
+          className="sr-only"
+          tabIndex={-1}
+          onChange={(e) => {
+            if (e.target.files?.length) upload(e.target.files);
+            e.target.value = "";
+          }}
+        />
         <button type="button" className={smallBtn} disabled={busy} onClick={() => inputRef.current?.click()}>
           {busy ? "Mengunggah…" : "⬆ Unggah Baru"}
         </button>
@@ -392,7 +533,7 @@ export function ImageInput({ value, onChange }: { value: string; onChange: (v: s
             Hapus Gambar
           </button>
         )}
-        <span className="text-[10px] text-slate-400">JPG/PNG/WEBP, otomatis dikompres</span>
+        <span className="text-[10px] text-slate-400">JPG/PNG/WEBP · bisa di-crop · otomatis dikompres</span>
         {err && <span className="text-xs text-red-600">{err}</span>}
       </div>
     </div>

@@ -4,6 +4,7 @@ import { signOut } from "next-auth/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState, type CSSProperties, type ReactNode } from "react";
+import { Toaster } from "@/components/admin/toast";
 import { sections, type ContentKey } from "@/lib/content/defaults";
 
 type Item = { href: string; label: string; icon: string };
@@ -244,6 +245,7 @@ export function AdminShell({ email, name, children }: { email: string; name: str
         </header>
 
         <div className="px-4 py-6 sm:px-6 lg:px-8 lg:py-8">{children}</div>
+        <Toaster />
       </div>
     </div>
   );

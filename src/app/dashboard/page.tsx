@@ -1,5 +1,6 @@
 import { requireAdminPage } from "@/lib/admin/guard";
 import { getDashboardStats } from "@/lib/admin/queries";
+import { formatDeadline, isPpdbExpired, isPpdbOpen } from "@/lib/ppdb/deadline";
 import { PpdbToggle } from "./ppdb-toggle";
 
 export const dynamic = "force-dynamic";
@@ -14,6 +15,7 @@ const statusClass = {
 export default async function DashboardPage() {
   await requireAdminPage();
   const { total, byStatus, latest, profile, ppdb } = await getDashboardStats();
+  const open = isPpdbOpen(ppdb);
 
   const stats = [
     { label: "Total Pendaftar", value: total },
@@ -27,11 +29,15 @@ export default async function DashboardPage() {
       <div className="flex flex-wrap items-end justify-between gap-2">
         <h1 className="text-2xl font-bold text-slate-800">Dashboard PPDB</h1>
         <p className="text-sm text-slate-500">
-          PPDB {ppdb?.academicYear || "-"}: {ppdb?.isOpen ? "dibuka" : "ditutup"} · {profile?.studentCount ?? 0} siswa · {profile?.classCount ?? 0} kelas
+          PPDB {ppdb?.academicYear || "-"}: {open ? "dibuka" : "ditutup"} · {profile?.studentCount ?? 0} siswa · {profile?.classCount ?? 0} kelas
         </p>
       </div>
 
-      <PpdbToggle isOpen={!!ppdb?.isOpen} />
+      <PpdbToggle
+        isOpen={open}
+        expired={isPpdbExpired(ppdb)}
+        deadline={ppdb?.closesAt ? formatDeadline(ppdb.closesAt, ppdb.closesAtTime) : ""}
+      />
 
       <section className="grid grid-cols-2 gap-4 md:grid-cols-4">
         {stats.map((s) => (

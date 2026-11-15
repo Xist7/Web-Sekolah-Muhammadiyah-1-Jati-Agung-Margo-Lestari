@@ -109,6 +109,16 @@
   margin: 0 auto 12px;
   display: block;
 }
+.guru-ph {
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  margin: 0 auto 12px;
+  display: grid;
+  place-items: center;
+  font-size: 44px;
+  background: #e8f3ee;
+}
 .guru-card h3 { font-size: 15px; font-weight: 700; margin: 0 0 4px; }
 .guru-card p { font-size: 13px; font-weight: 400; color: #5b6b63; margin: 0; }
 .guru-nav {

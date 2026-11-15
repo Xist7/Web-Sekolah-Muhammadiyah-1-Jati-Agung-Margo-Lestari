@@ -15,21 +15,48 @@
 .berita-card p { font-size: 14px; color: var(--muted); display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
 .berita-empty { text-align: center; padding: 64px 16px; color: var(--muted-2); }
 
-.post { max-width: 760px; margin: 0 auto; }
-.post-back { display: inline-block; font-size: 13px; color: var(--muted-2); margin-bottom: 16px; }
-.post-back:hover { color: var(--primary); }
-.post h1 { font-size: clamp(26px, 4.5vw, 40px); line-height: 1.2; color: var(--primary); letter-spacing: -.5px; margin: 10px 0 12px; }
-.post .lead { font-size: 18px; color: var(--muted); margin-bottom: 20px; }
-.post-cover { border-radius: 20px; overflow: hidden; margin: 24px 0 32px; box-shadow: var(--shadow-lg); }
-.post-cover img { width: 100%; height: auto; }
-.post-share { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 40px; padding-top: 20px; border-top: 1px solid var(--line); font-size: 13px; }
-.post-share a, .post-share button { border: 1px solid var(--line); border-radius: 9999px; padding: 6px 14px; background: #fff; }
+/* ---------- Detail berita (gaya banner + kolom baca sempit) ---------- */
+.post-hero {
+  background:
+    radial-gradient(circle at 85% 20%, rgba(255,255,255,.08) 0 2px, transparent 3px) 0 0 / 48px 48px,
+    linear-gradient(120deg, #00341f 0%, var(--primary, #00482f) 55%, #0a6b4a 100%);
+  color: #fff; border-bottom: 4px solid #8fd1b4;
+}
+.post-hero-inner { max-width: 920px; padding: 28px 16px 36px; }
+.post-crumb { display: flex; flex-wrap: wrap; gap: 6px; font-size: 12px; opacity: .8; margin-bottom: 18px; }
+.post-crumb a:hover { text-decoration: underline; }
+.post-crumb span[aria-current] { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 46ch; }
+.post-tag { display: inline-block; font-family: ui-monospace, monospace; font-size: 12px; letter-spacing: 1.5px; text-transform: uppercase; color: #8fd1b4; margin-bottom: 10px; }
+.post-tag::before { content: ">_ "; }
+.post-hero h1 { font-size: clamp(26px, 4vw, 38px); line-height: 1.2; font-weight: 800; letter-spacing: -.5px; max-width: 24ch; }
+.post-info { display: flex; flex-wrap: wrap; gap: 6px 18px; margin-top: 16px; font-family: ui-monospace, monospace; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; opacity: .85; }
+.post-info > * + *::before { content: "•"; margin-right: 18px; color: #8fd1b4; }
+
+.post-layout { max-width: 920px; display: grid; grid-template-columns: 48px minmax(0, 1fr); gap: 28px; padding: 36px 16px 72px; }
+.post { max-width: 680px; }
+.post-cover { border-radius: 18px; overflow: hidden; margin-bottom: 28px; box-shadow: var(--shadow-lg); }
+.post-cover img { width: 100%; height: auto; display: block; aspect-ratio: 16/9; object-fit: cover; }
+.post .lead { font-size: 18px; line-height: 1.6; color: var(--muted); padding-left: 14px; border-left: 4px solid #8fd1b4; margin-bottom: 24px; }
+.post-back { display: inline-block; margin-top: 40px; padding-top: 20px; border-top: 1px solid var(--line); width: 100%; font-size: 14px; color: var(--primary); font-weight: 600; }
+.post-back:hover { text-decoration: underline; }
+
+.share-bar { position: sticky; top: 96px; align-self: start; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.share-label { writing-mode: vertical-rl; transform: rotate(180deg); font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--primary); margin-bottom: 4px; }
+.share-bar button { width: 36px; height: 36px; display: grid; place-items: center; border: 1px solid var(--line); border-radius: 8px; background: #fff; font-size: 15px; font-weight: 700; color: var(--primary); cursor: pointer; transition: background .2s, color .2s; }
+.share-bar button:hover { background: var(--primary); color: #fff; }
+
+@media (max-width: 720px) {
+  .post-layout { grid-template-columns: 1fr; gap: 16px; padding-top: 24px; }
+  .share-bar { position: static; flex-direction: row; order: 2; }
+  .share-label { writing-mode: initial; transform: none; margin: 0 4px 0 0; }
+}
 
 /* Isi berita (juga dipakai pratinjau di panel admin) */
-.prose-berita { font-size: 17px; line-height: 1.8; color: var(--text, #1e1b18); }
+.prose-berita { font-size: 16px; line-height: 1.85; color: var(--text, #1e1b18); }
 .prose-berita > * + * { margin-top: 1.1em; }
-.prose-berita h2 { font-size: 1.4em; line-height: 1.3; color: var(--primary, #00482f); margin-top: 1.6em; font-weight: 700; }
-.prose-berita h3 { font-size: 1.15em; color: var(--primary, #00482f); margin-top: 1.4em; font-weight: 700; }
+.prose-berita h2 { font-size: 1.35em; line-height: 1.3; color: var(--primary, #00482f); margin-top: 1.8em; font-weight: 700; }
+.prose-berita h3 { font-size: 1.12em; color: var(--primary, #00482f); margin-top: 1.4em; font-weight: 700; }
+.prose-berita li + li { margin-top: .35em; }
 .prose-berita ul { list-style: disc; padding-left: 1.4em; }
 .prose-berita ol { list-style: decimal; padding-left: 1.4em; }
 .prose-berita blockquote { border-left: 4px solid var(--primary-2, #006241); padding: 4px 0 4px 16px; color: var(--muted, #3f4943); font-style: italic; }
