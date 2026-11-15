@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
+import Image from "next/image";
+import Link from "next/link";
 import { redirect } from "next/navigation";
+import { ArrowLeft, ShieldCheck } from "lucide-react";
 import { auth } from "@/auth";
 import { GoogleLoginButton, LogoutButton } from "@/components/auth/buttons";
 import { getCurrentAdmin } from "@/lib/admin/guard";
@@ -20,28 +23,68 @@ export default async function LoginPage({ searchParams }: PageProps<"/login">) {
   const errorCode = typeof error === "string" ? error : undefined;
 
   return (
-    <main className="flex min-h-[70vh] items-center justify-center bg-slate-50 px-4 py-16">
-      <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-lg ring-1 ring-slate-100 sm:p-8">
-        <p className="text-xs font-semibold tracking-widest text-emerald-700 uppercase">Panel Admin</p>
-        <h1 className="mt-1 text-2xl font-bold text-slate-800">Masuk ke Dashboard</h1>
-        <p className="mt-2 text-sm text-slate-500">
-          Gunakan akun Google yang sudah terdaftar sebagai admin sekolah.
-        </p>
-
-        {errorCode && (
-          <p role="alert" className="mt-5 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">
-            {errorMessages[errorCode] ?? `Login gagal (${errorCode}). Silakan coba lagi.`}
-          </p>
-        )}
-
-        {session?.user ? (
-          <div className="mt-6 flex items-center justify-between gap-3">
-            <p className="truncate text-sm text-slate-600">{session.user.email}</p>
-            <LogoutButton />
+    <main className="lg">
+      <div className="lg-shell">
+        {/* Panel kiri: foto sekolah (disembunyikan di HP) */}
+        <aside className="lg-side" style={{ backgroundImage: "url('/hero.jpg')" }}>
+          <div className="lg-side-overlay" />
+          <div className="lg-side-content">
+            <div className="lg-side-brand">
+              <Image src="/logoSkula.png" alt="" width={44} height={44} />
+              <b>SMP Muhammadiyah 1 Jati Agung</b>
+            </div>
+            <div>
+              <p className="lg-side-eyebrow">Panel Admin</p>
+              <h2>Kelola konten sekolah dari satu tempat</h2>
+              <p className="lg-side-desc">
+                Perbarui berita, data guru, informasi PPDB, dan pantau pendaftar tanpa menyentuh kode.
+              </p>
+            </div>
+            <p className="lg-side-visi">
+              “Terbentuknya generasi Qurani yang berakhlak mulia, berkemajuan, dan unggul dalam ilmu pengetahuan serta teknologi”
+            </p>
           </div>
-        ) : (
-          <GoogleLoginButton />
-        )}
+        </aside>
+
+        {/* Panel kanan: kartu login */}
+        <section className="lg-panel">
+          <div className="lg-card">
+            <div className="lg-card-logo">
+              <Image src="/logoSkula.png" alt="Logo SMP Muhammadiyah 1 Jati Agung" width={56} height={56} priority />
+            </div>
+            <p className="lg-eyebrow">Panel Admin</p>
+            <span className="lg-line" aria-hidden="true" />
+            <h1>Masuk ke Dashboard</h1>
+            <p className="lg-desc">Gunakan akun Google yang sudah terdaftar sebagai admin sekolah.</p>
+
+            {errorCode && (
+              <p role="alert" className="lg-alert">
+                {errorMessages[errorCode] ?? `Login gagal (${errorCode}). Silakan coba lagi.`}
+              </p>
+            )}
+
+            {session?.user ? (
+              <div className="lg-session">
+                <p>{session.user.email}</p>
+                <LogoutButton />
+              </div>
+            ) : (
+              <div className="lg-action">
+                <GoogleLoginButton />
+              </div>
+            )}
+
+            <p className="lg-note">
+              <ShieldCheck size={16} aria-hidden="true" />
+              Hanya email yang terdaftar sebagai admin yang dapat masuk.
+            </p>
+
+            <Link className="lg-back" href="/">
+              <ArrowLeft size={16} aria-hidden="true" />
+              Kembali ke beranda
+            </Link>
+          </div>
+        </section>
       </div>
     </main>
   );
