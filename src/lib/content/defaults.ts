@@ -252,13 +252,12 @@ const ekskul = section({
     eyebrow: "Ekstrakurikuler",
     judul: "Ekstrakurikuler Pilihan & Bakat Minat",
     daftar: [
-      { media: emoji("🤖"), nama: "Robotik & AI", keterangan: "STEM Terapan", deskripsi: "Mengembangkan kemampuan STEM melalui proyek robotika dan IoT yang terstruktur." },
-      { media: emoji("🎤"), nama: "English Debate", keterangan: "Model UN & Speech", deskripsi: "Melatih kepercayaan diri dan kemampuan berbahasa Inggris lewat debat, pidato, dan simulasi sidang PBB." },
-      { media: emoji("🌱"), nama: "Eco Hidroponik", keterangan: "Urban Farming Club", deskripsi: "Praktik hidroponik dan konservasi tanaman untuk memupuk rasa hormat pada alam." },
-      { media: emoji("🥋"), nama: "Taekwondo & Silat", keterangan: "Bela Diri Prestasi", deskripsi: "Membangun disiplin, ketangguhan fisik, dan sportivitas melalui latihan bela diri yang terarah." },
-      { media: emoji("🏀"), nama: "Basket & Futsal", keterangan: "Lapangan Standar FIBA", deskripsi: "Mengasah kerja sama tim dan kebugaran lewat latihan rutin serta pertandingan persahabatan." },
-      { media: emoji("🎶"), nama: "Seni & Musik", keterangan: "Ensembel & Ilustrasi", deskripsi: "Wadah menyalurkan kreativitas lewat ensembel musik, menggambar, dan ilustrasi." },
-    ],
+    { media: emoji("⚜️"), nama: "Pramuka", keterangan: "Kepanduan", deskripsi: "Membentuk karakter disiplin, mandiri, dan peduli lingkungan melalui kegiatan kepanduan yang menyenangkan." },
+    { media: emoji("🥋"), nama: "Tapak Suci", keterangan: "Bela Diri", deskripsi: "Melatih kebugaran, disiplin, dan kepercayaan diri siswa melalui seni bela diri." },
+    { media: emoji("⚽"), nama: "Sepak Bola", keterangan: "Olahraga Tim", deskripsi: "Membangun kekompakan tim, sportivitas, dan kebugaran jasmani siswa." },
+    { media: emoji("🧭"), nama: "Hizbul Wathan", keterangan: "Kepanduan Muhammadiyah", deskripsi: "Membentuk karakter mandiri, disiplin, dan cinta tanah air melalui kepanduan." },
+    { media: emoji("🥁"), nama: "Hadroh", keterangan: "Seni Musik Islami", deskripsi: "Mengembangkan bakat seni musik islami dan kecintaan pada shalawat." },
+  ],
   },
 });
 
