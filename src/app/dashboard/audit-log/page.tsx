@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { Prisma } from "@/generated/prisma/client";
 import { requireAdminPage } from "@/lib/admin/guard";
-import { AUDIT_MAX_ROWS, DB_LIMIT_BYTES, getDbSize } from "@/lib/audit";
+import { AUDIT_MAX_ROWS } from "@/lib/audit";
 import { db } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
@@ -20,7 +20,6 @@ const ACTIONS: Record<string, { label: string; icon: string; tone: string }> = {
 
 const TZ = "Asia/Jakarta";
 const dayKey = (d: Date) => d.toLocaleDateString("en-CA", { timeZone: TZ }); // YYYY-MM-DD (WIB)
-const fmtMB = (b: number) => `${(b / 1048576).toFixed(1)} MB`;
 
 function dayLabel(key: string) {
   const today = dayKey(new Date());
@@ -72,11 +71,10 @@ export default async function AuditLogPage({ searchParams }: PageProps<"/dashboa
     }),
   };
 
-  const [logs, total, totalAll, dbSize] = await Promise.all([
+  const [logs, total, totalAll] = await Promise.all([
     db.auditLog.findMany({ where, orderBy: { createdAt: "desc" }, take: limit }),
     db.auditLog.count({ where }),
     db.auditLog.count(),
-    getDbSize().catch(() => 0),
   ]);
 
   // Kelompokkan per hari (WIB)
@@ -87,7 +85,6 @@ export default async function AuditLogPage({ searchParams }: PageProps<"/dashboa
     groups.at(-1)!.items.push(l);
   }
 
-  const dbPct = Math.min(100, (dbSize / DB_LIMIT_BYTES) * 100);
   const logPct = Math.min(100, (totalAll / AUDIT_MAX_ROWS) * 100);
   const moreHref = `/dashboard/audit-log?${new URLSearchParams({ ...(role && { role }), ...(dari && { dari }), ...(sampai && { sampai }), ...(q && { q }), limit: String(limit + 100) })}`;
 
@@ -99,18 +96,8 @@ export default async function AuditLogPage({ searchParams }: PageProps<"/dashboa
         <p className="text-sm text-slate-500">Riwayat aktivitas admin di panel: login, perubahan konten, berita, media, pendaftaran, dan pengguna.</p>
       </div>
 
-      {/* Pemakaian penyimpanan */}
+      {/* Kapasitas audit log (pemakaian database ada di menu Database) */}
       <section className="grid gap-4 sm:grid-cols-2">
-        <div className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
-          <div className="flex items-baseline justify-between">
-            <p className="text-sm font-semibold text-slate-600">Database terpakai</p>
-            <p className="text-sm text-slate-500"><b className="text-slate-800">{fmtMB(dbSize)}</b> / {fmtMB(DB_LIMIT_BYTES)}</p>
-          </div>
-          <div className="mt-2 h-2.5 overflow-hidden rounded-full bg-slate-100" role="progressbar" aria-valuenow={Math.round(dbPct)} aria-valuemin={0} aria-valuemax={100}>
-            <div className={`h-full rounded-full ${dbPct > 80 ? "bg-red-500" : dbPct > 60 ? "bg-amber-500" : "bg-emerald-600"}`} style={{ width: `${Math.max(dbPct, 1)}%` }} />
-          </div>
-          <p className="mt-2 text-xs text-slate-400">{dbPct.toFixed(1)}% dari kuota Neon. Di atas 80%, audit log otomatis dipangkas jadi 1.000 terbaru.</p>
-        </div>
         <div className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
           <div className="flex items-baseline justify-between">
             <p className="text-sm font-semibold text-slate-600">Kapasitas audit log</p>
@@ -119,7 +106,7 @@ export default async function AuditLogPage({ searchParams }: PageProps<"/dashboa
           <div className="mt-2 h-2.5 overflow-hidden rounded-full bg-slate-100" role="progressbar" aria-valuenow={Math.round(logPct)} aria-valuemin={0} aria-valuemax={100}>
             <div className="h-full rounded-full bg-sky-500" style={{ width: `${Math.max(logPct, 1)}%` }} />
           </div>
-          <p className="mt-2 text-xs text-slate-400">Saat penuh, aktivitas terlama otomatis dihapus.</p>
+          <p className="mt-2 text-xs text-slate-400">Saat penuh, aktivitas terlama otomatis dihapus. Pemakaian database: lihat menu <Link href="/dashboard/database" className="text-emerald-700 underline">Database</Link>.</p>
         </div>
       </section>
 

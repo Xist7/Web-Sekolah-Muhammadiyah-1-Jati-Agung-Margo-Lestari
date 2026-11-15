@@ -2,7 +2,14 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Reveal } from "@/components/reveal";
-import { guru } from "@/data/guru";
+import { guru, type Guru } from "@/data/guru";
+
+type Props = {
+  eyebrow?: string;
+  judul?: string;
+  subjudul?: string;
+  daftar?: Guru[];
+};
 
 // "Siti Wardani" -> "SW", "RAHMAT, S.Pd" -> "R" (gelar setelah koma diabaikan)
 function inisial(nama: string) {
@@ -39,20 +46,25 @@ function FotoGuru({ nama, foto }: { nama: string; foto?: string }) {
   );
 }
 
-export function GuruCarousel() {
+export function GuruCarousel({
+  eyebrow = "Guru & Staf",
+  judul = "Tenaga Pendidik",
+  subjudul = "Dibimbing oleh guru-guru profesional yang ahli di bidangnya.",
+  daftar = guru,
+}: Props = {}) {
   return (
     <section className="guru" aria-labelledby="h-guru">
       <div className="container">
         <Reveal>
           <div className="tp-layout">
             <div className="tp-head">
-              <p className="eyebrow">Guru &amp; Staf</p>
-              <h2 className="section-title" id="h-guru">Tenaga Pendidik</h2>
-              <p className="tp-sub">Dibimbing oleh guru-guru profesional yang ahli di bidangnya.</p>
+              {eyebrow && <p className="eyebrow">{eyebrow}</p>}
+              <h2 className="section-title" id="h-guru">{judul}</h2>
+              {subjudul && <p className="tp-sub">{subjudul}</p>}
             </div>
             <div className="tp-grid">
-              {guru.map((g) => (
-                <article className="tp-card" key={g.nama}>
+              {daftar.map((g, i) => (
+                <article className="tp-card" key={i}>
                   <FotoGuru nama={g.nama} foto={g.foto} />
                   <h3>{g.nama}</h3>
                   <p>{g.mapel}</p>

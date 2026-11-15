@@ -15,7 +15,6 @@ export async function GET(_req: NextRequest, ctx: RouteContext<"/api/files/[id]"
   return new Response(Buffer.from(file.data), {
     headers: {
       "Content-Type": file.mime,
-      "Content-Length": String(file.size),
       "Content-Disposition": `inline; filename="${encodeURIComponent(file.filename)}"`,
       "X-Content-Type-Options": "nosniff",
       // id file tidak pernah berubah isinya → aman di-cache lama (yang privat hanya di browser admin)

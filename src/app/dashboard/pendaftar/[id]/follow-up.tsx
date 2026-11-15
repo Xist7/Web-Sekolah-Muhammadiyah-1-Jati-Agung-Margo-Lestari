@@ -1,5 +1,6 @@
 "use client";
 
+import { toast } from "@/components/admin/toast";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { useConfirm } from "@/components/admin/confirm-dialog";
@@ -38,7 +39,8 @@ export function FollowUp({ reg }: { reg: Reg }) {
   function save() {
     start(async () => {
       const r = await updatePendaftar({ id: reg.id, status, notes });
-      setMsg({ ok: r.ok, text: r.message });
+      toast.result(r);
+      setMsg(r.ok ? undefined : { ok: false, text: r.message });
       if (r.ok) router.refresh();
     });
   }
@@ -53,6 +55,7 @@ export function FollowUp({ reg }: { reg: Reg }) {
     if (!ok) return;
     start(async () => {
       const r = await deletePendaftar(reg.id);
+      toast.result(r);
       if (r.ok) router.replace("/dashboard/pendaftar");
       else setMsg({ ok: false, text: r.message });
     });

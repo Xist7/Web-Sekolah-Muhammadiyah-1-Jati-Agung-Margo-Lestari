@@ -1,9 +1,11 @@
 "use server";
 
+import { isPpdbOpen } from "@/lib/ppdb/deadline";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { Prisma } from "@/generated/prisma/client";
 import { db } from "@/lib/db";
+import { allowAttempt, clientIp, MIN_FILL_MS, verifyTurnstile } from "./antispam";
 
 export type SubmitResult =
   | { ok: true; regNumber: string; name: string }
@@ -48,11 +50,37 @@ function readFile(formData: FormData, key: keyof typeof FILE_RULES) {
   return { file: f };
 }
 
+/** Cek cepat dari formulir: apakah NISN sudah punya pendaftaran aktif di sekolah ini. */
+export async function checkNisn(nisn: string): Promise<{ valid: boolean; registered: boolean }> {
+  if (!/^\d{10}$/.test(nisn)) return { valid: false, registered: false };
+  const dup = await db.registration.findFirst({
+    where: { nisn, status: { not: "REJECTED" } },
+    select: { id: true },
+  });
+  return { valid: true, registered: !!dup };
+}
+
 /** F-04: kirim formulir pendaftaran PPDB (publik, tanpa login). */
 export async function submitRegistration(formData: FormData): Promise<SubmitResult> {
   try {
-    const info = await db.ppdbInfo.findUnique({ where: { id: 1 }, select: { isOpen: true } });
-    if (!info?.isOpen) return { ok: false, message: "Maaf, pendaftaran sedang ditutup." };
+    const info = await db.ppdbInfo.findUnique({ where: { id: 1 }, select: { isOpen: true, closesAt: true, closesAtTime: true } });
+    if (!isPpdbOpen(info)) return { ok: false, message: "Maaf, pendaftaran sedang ditutup." };
+
+    // --- Anti bot / pendaftaran massal ---
+    const BOT = { ok: false as const, message: "Pengiriman ditolak. Muat ulang halaman lalu coba lagi." };
+    // Honeypot: kolom tersembunyi yang hanya diisi bot
+    if (String(formData.get("website") ?? "") !== "") return BOT;
+    // Formulir diisi terlalu cepat sejak halaman dibuka
+    const openedAt = Number(formData.get("_t"));
+    if (!Number.isFinite(openedAt) || Date.now() - openedAt < MIN_FILL_MS) return BOT;
+
+    const ip = await clientIp();
+    if (!(await verifyTurnstile(formData.get("cf-turnstile-response") as string | null, ip))) {
+      return { ok: false, message: "Verifikasi keamanan gagal. Selesaikan centang verifikasi lalu kirim ulang." };
+    }
+    if (!(await allowAttempt(ip))) {
+      return { ok: false, message: "Terlalu banyak pengiriman dari jaringan ini. Coba lagi dalam 1 jam atau hubungi panitia PPDB." };
+    }
 
     const fields = Object.fromEntries([...formData.entries()].filter(([, v]) => typeof v === "string"));
     const parsed = schema.safeParse(fields);
@@ -70,6 +98,17 @@ export async function submitRegistration(formData: FormData): Promise<SubmitResu
     }
 
     const d = parsed.data;
+
+    // Satu NISN hanya boleh punya satu pendaftaran aktif (yang ditolak boleh daftar ulang)
+    const dup = await db.registration.findFirst({
+      where: { nisn: d.nisn, status: { not: "REJECTED" } },
+      select: { id: true },
+    });
+    if (dup) {
+      const msg = "NISN ini sudah terdaftar. Hubungi panitia PPDB jika merasa belum pernah mendaftar.";
+      return { ok: false, message: msg, fieldErrors: { nisn: [msg] } };
+    }
+
     const sources = formData.getAll("info").filter((v): v is string => typeof v === "string").map((s) => s.slice(0, 50));
     if (d.infoLain) sources.push(`Lainnya: ${d.infoLain}`);
 

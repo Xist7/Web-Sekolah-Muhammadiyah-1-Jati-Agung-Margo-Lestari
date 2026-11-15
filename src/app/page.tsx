@@ -1,29 +1,13 @@
 import Link from "next/link";
-import {
-  CalendarDays,
-  Check,
-  ClipboardList,
-  Eye,
-  GraduationCap,
-  Leaf,
-  Medal,
-  Newspaper,
-  Target,
-  Trophy,
-  Users,
-} from "lucide-react";
+import { Check, ClipboardList, Eye, Leaf, Newspaper, Target, Trophy } from "lucide-react";
 import { GuruCarousel } from "@/components/guru-carousel";
 import { Reveal } from "@/components/reveal";
 import { HeroBanner } from "@/components/hero-banner";
 import { EkskulSlider } from "@/components/ekskul-slider";
+import { MediaIcon } from "@/components/media-icon";
 import { formatTanggal } from "@/lib/berita/format";
 import { getPublishedPosts } from "@/lib/berita/queries";
-
-const stats = [
-  { Icon: CalendarDays, value: "1993", label: "Tahun berdiri" },
-  { Icon: GraduationCap, value: "58", label: "Jumlah siswa" },
-  { Icon: Users, value: "11", label: "Tenaga pendidik" },
-];
+import { getContent, getPpdbStatus } from "@/lib/content/get";
 
 const visi =
   "“Terbentuknya generasi Qurani yang berakhlak mulia, berkemajuan, dan unggul dalam ilmu pengetahuan serta teknologi”";
@@ -37,19 +21,6 @@ const misi = [
   "Memperkuat kemitraan antara sekolah, orang tua, dan masyarakat dalam mendukung pendidikan yang holistik.",
 ];
 
-// Foto ada di folder public/ (ruangkelas.jpg dan kantor.jpg)
-const facilities = [
-  { photo: "/ruangkelas.jpeg", alt: "Foto ruang kelas", title: "Ruang Kelas", desc: "Ruang belajar yang bersih, tertata rapi, dan nyaman untuk kegiatan belajar sehari-hari. Suasana kelas yang tenang dan kondusif membantu siswa lebih fokus menerima pelajaran, sekaligus mendukung kegiatan diskusi dan interaksi yang hangat antara guru dan siswa." },
-  { photo: "/kantor.jpeg", alt: "Foto kantor", title: "Kantor", desc: "Tempat guru dan staf bekerja, sekaligus melayani orang tua dan tamu yang ingin bertanya atau mengurus keperluan sekolah." },
-];
-
-const achievements = [
-  { badge: "Emas", title: "OSN IPA & Matematika", desc: "Medali Emas Olimpiade Sains Nasional Tingkat Provinsi Lampung & Finalis Nasional.", by: "Tim Sains Junior 2024" },
-  { badge: "Juara 1", title: "National Robotics Olympiad", desc: "Kategori Autonomous Eco-Sorting Robot (Robot Pemilah Sampah Cerdas) di ITB Bandung.", by: "Tim Robotik Sekolah" },
-  { badge: "Best Speaker", title: "English Debate", desc: "Penghargaan Pembicara Terbaik & Juara Umum English Parliamentary Debate Junior Championship.", by: "Amanda Kirana (Kelas 8)" },
-  { badge: "Juara 2", title: "FLS2N Seni & Musik", desc: "Festival dan Lomba Seni Siswa Nasional cabang Ansambel Musik Campuran Nusantara.", by: "Ansambel Musik Sekolah" },
-];
-
 // Beranda diperbarui otomatis saat admin menerbitkan berita; revalidate = cadangan tiap 5 menit
 export const revalidate = 300;
 
@@ -58,6 +29,19 @@ const newsIcon = (category: string) =>
   /prestasi|juara/i.test(category) ? Trophy : /ppdb|pengumuman/i.test(category) ? ClipboardList : /kegiatan|agenda/i.test(category) ? Leaf : Newspaper;
 
 export default async function HomePage() {
+  // Isi beranda diambil dari panel admin (Pengaturan → Beranda); kalau belum diedit, pakai isi bawaan
+  const [hero, sambutan, guru, fasilitas, prestasi, ppdb] = await Promise.all([
+    getContent("hero"),
+    getContent("sambutan"),
+    getContent("guru"),
+    getContent("fasilitas"),
+    getContent("prestasi"),
+    getPpdbStatus(),
+  ]);
+  const kepala = guru.daftar.find((g) => g.kepalaSekolah);
+  const guruLain = guru.daftar.filter((g) => !g.kepalaSekolah);
+  const paragrafSambutan = sambutan.isi.split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean);
+
   // Berita diambil dari panel admin (Pengaturan → Berita): 3 terbaru yang sudah terbit
   const news = (await getPublishedPosts(3)).map((p) => ({
     slug: p.slug,
@@ -75,14 +59,17 @@ export default async function HomePage() {
       {/* HERO BARU */}
       <HeroBanner />
 
-      {/* STATISTIK */}
+      {/* STATISTIK (dari admin) */}
       <section className="section" style={{ paddingTop: 32 }}>
         <div className="container">
+          <Link className="chip" href="/ppdb">
+            <span className="dot" /> {ppdb.isOpen ? hero.chipBuka : hero.chipTutup}
+          </Link>
           <div className="stats" id="profil">
-            {stats.map((s) => (
-              <div className="stat" key={s.label}>
-                <div className="ic"><s.Icon size={22} strokeWidth={2} /></div>
-                <b>{s.value}</b>
+            {hero.statistik.map((s, i) => (
+              <div className="stat" key={i}>
+                <div className="ic"><MediaIcon m={s.ikon} /></div>
+                <b>{s.angka}</b>
                 <span>{s.label}</span>
               </div>
             ))}
@@ -127,28 +114,23 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* SAMBUTAN KEPALA SEKOLAH: teks di kiri, foto kepsek 3:4 di kanan (identitas di dalam foto) */}
+      {/* SAMBUTAN KEPALA SEKOLAH: teks dari admin, tampilan sambutan-grid */}
       <section className="section" id="sambutan">
         <div className="container">
           <Reveal>
             <div className="sambutan-grid">
               <div className="sambutan-text">
-                <p className="eyebrow">Sambutan Kepala Sekolah</p>
-                <blockquote>“Setiap anak adalah bibit unggul yang bertumbuh optimal di tanah yang penuh kasih dan keteladanan.”</blockquote>
-                <p>
-                  Selamat datang di SMP Muhammadiyah 1 Jati Agung. Memasuki usia remaja awal adalah fase transisi krusial
-                  di mana rasa ingin tahu, kecerdasan moral, dan kesadaran sosial mulai berakar kuat. Kami meyakini bahwa
-                  pendidikan sejati bukan semata tentang tumpukan nilai kognitif, melainkan penempaan integritas budi
-                  pekerti yang selaras dengan kecintaan terhadap sesama dan alam semesta.
-                </p>
+                {sambutan.eyebrow && <p className="eyebrow">{sambutan.eyebrow}</p>}
+                {sambutan.kutipan && <blockquote>{sambutan.kutipan}</blockquote>}
+                {paragrafSambutan.map((p, i) => <p key={i}>{p}</p>)}
               </div>
               <figure
                 className="sambutan-photo"
-                style={{ backgroundImage: "url('/kepsek.jpeg')" }}
+                style={{ backgroundImage: `url('${kepala?.foto || "/kepsek.jpeg"}')` }}
               >
                 <figcaption>
-                  <b>Julianto</b>
-                  <span>Kepala Sekolah SMP Muhammadiyah 1 Jati Agung</span>
+                  <b>{kepala?.nama ?? "Julianto, M.Pd"}</b>
+                  <span>{kepala?.mapel || "Kepala Sekolah SMP Muhammadiyah 1 Jati Agung"}</span>
                 </figcaption>
               </figure>
             </div>
@@ -156,31 +138,36 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <GuruCarousel />
+      <GuruCarousel eyebrow={guru.eyebrow} judul={guru.judul} subjudul={guru.subjudul} daftar={guruLain} />
 
       {/* FASILITAS: zigzag, baris 1 foto kiri + keterangan kanan, baris 2 sebaliknya */}
       <section className="section" id="fasilitas">
         <div className="container">
           <Reveal>
             <div className="section-head center">
-              <p className="eyebrow">Sarana &amp; Prasarana</p>
-              <h2 className="section-title">Fasilitas SMP Muhammadiyah 1 Jati Agung</h2>
+              {fasilitas.eyebrow && <p className="eyebrow">{fasilitas.eyebrow}</p>}
+              <h2 className="section-title">{fasilitas.judul}</h2>
             </div>
             <div className="fac-list">
-              {facilities.map((f) => (
-                <div className="fac-row" key={f.title}>
-                  <div
-                    className="fac-photo"
-                    role="img"
-                    aria-label={f.alt}
-                    style={{ backgroundImage: `url('${f.photo}')` }}
-                  />
-                  <div className="fac-text">
-                    <h3>{f.title}</h3>
-                    <p>{f.desc}</p>
+              {fasilitas.daftar.map((f, i) => {
+                const img = f.media.jenis === "gambar" ? f.media.gambar : "";
+                return (
+                  <div className="fac-row" key={i}>
+                    <div
+                      className="fac-photo"
+                      role="img"
+                      aria-label={f.judul}
+                      style={img ? { backgroundImage: `url('${img}')` } : undefined}
+                    >
+                      {!img && f.media.emoji}
+                    </div>
+                    <div className="fac-text">
+                      <h3>{f.judul}</h3>
+                      <p>{f.deskripsi}</p>
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </Reveal>
         </div>
@@ -193,20 +180,20 @@ export default async function HomePage() {
             <div className="achv-panel">
               <div className="achv-head">
                 <div>
-                  <p className="eyebrow">Jejak Prestasi Siswa</p>
-                  <h2 className="section-title">Kilau Kejuaraan Nasional &amp; Internasional</h2>
+                  {prestasi.eyebrow && <p className="eyebrow">{prestasi.eyebrow}</p>}
+                  <h2 className="section-title">{prestasi.judul}</h2>
                 </div>
-                <span className="chip">Tahun Ajaran 2026/2027</span>
+                {prestasi.chip && <span className="chip">{prestasi.chip}</span>}
               </div>
               <div className="achv-grid">
-                {achievements.map((a) => (
-                  <article className="achv" key={a.title}>
+                {prestasi.daftar.map((a, i) => (
+                  <article className="achv" key={i}>
                     <div>
-                      <div className="achv-top"><span className="medal"><Medal size={22} strokeWidth={2} /></span><span className="badge">{a.badge}</span></div>
-                      <h3>{a.title}</h3>
-                      <p>{a.desc}</p>
+                      <div className="achv-top"><span className="medal"><MediaIcon m={a.media} /></span>{a.lencana && <span className="badge">{a.lencana}</span>}</div>
+                      <h3>{a.judul}</h3>
+                      <p>{a.deskripsi}</p>
                     </div>
-                    <small>Oleh: {a.by}</small>
+                    {a.oleh && <small>Oleh: {a.oleh}</small>}
                   </article>
                 ))}
               </div>
