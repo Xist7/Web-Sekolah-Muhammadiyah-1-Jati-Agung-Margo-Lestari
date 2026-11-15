@@ -1,14 +1,14 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Activity, Bot, ChevronLeft, ChevronRight, Mic, Music, Sprout } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 type Media =
   | { kind: "image"; src: string; alt: string }
   | { kind: "video"; src: string }
   | { kind: "youtube"; id: string; title: string };
 
-type Unggulan = { title: string; desc: string; media: Media };
+type Unggulan = { title: string; desc: string; media?: Media };
 
 const unggulan: Unggulan[] = [
   {
@@ -17,18 +17,22 @@ const unggulan: Unggulan[] = [
     media: { kind: "image", src: "/ekskul/pramuka.jpeg", alt: "Kegiatan Pramuka SMP Muhammadiyah 1 Jati Agung" },
   },
   {
-    title: "Taekwondo/Silat",
+    title: "Tapak Suci",
     desc: "Melatih kebugaran, disiplin, dan kepercayaan diri siswa melalui seni bela diri.",
     media: { kind: "video", src: "/ekskul/silat.mp4" },
   },
-];
-
-const lainnya = [
-  { Icon: Bot, name: "Robotik & AI", desc: "Mengembangkan kemampuan STEM melalui proyek robotika dan IoT yang terstruktur." },
-  { Icon: Activity, name: "Basket & Futsal", desc: "Melatih kebugaran, kerja sama tim, dan sportivitas lewat olahraga bola." },
-  { Icon: Sprout, name: "Eco Hidroponik", desc: "Praktik hidroponik dan konservasi tanaman untuk memupuk rasa hormat pada alam." },
-  { Icon: Mic, name: "English Debate", desc: "Melatih keberanian berbicara dan berpikir kritis dalam bahasa Inggris." },
-  { Icon: Music, name: "Seni & Musik", desc: "Wadah menyalurkan kreativitas lewat musik dan seni." },
+  {
+    title: "Sepak Bola",
+    desc: "Membangun kekompakan tim, sportivitas, dan kebugaran jasmani siswa.",
+  },
+  {
+    title: "Hizbul Wathan",
+    desc: "Membentuk karakter mandiri, disiplin, dan cinta tanah air melalui kepanduan.",
+  },
+  {
+    title: "Hadroh",
+    desc: "Mengembangkan bakat seni musik islami dan kecintaan pada shalawat.",
+  },
 ];
 
 function MediaView({ media, active }: { media: Media; active: boolean }) {
@@ -58,7 +62,7 @@ function MediaView({ media, active }: { media: Media; active: boolean }) {
 }
 
 export function EkskulSlider() {
-  const total = unggulan.length + 1; // + slide "Ekskul Lainnya"
+  const total = unggulan.length; // + slide "Ekskul Lainnya"
   const [i, setI] = useState(0);
   const root = useRef<HTMLDivElement>(null);
   const touchX = useRef<number | null>(null);
@@ -96,9 +100,11 @@ export function EkskulSlider() {
           {unggulan.map((e, idx) => (
             <div className={`ek-slide${i === idx ? " is-active" : ""}`} key={e.title}>
               <div className="ek-feature">
+                {e.media && (
                 <div className="ek-media">
                   <MediaView media={e.media} active={i === idx} />
                 </div>
+                )}
                 <div className="ek-text">
                   <h3>{e.title}</h3>
                   <p>{e.desc}</p>
@@ -106,18 +112,6 @@ export function EkskulSlider() {
               </div>
             </div>
           ))}
-
-          <div className={`ek-slide${i === total - 1 ? " is-active" : ""}`}>
-            <div className="ek-others">
-              {lainnya.map((l) => (
-                <article className="ek-card" key={l.name}>
-                  <div className="ek-card-ic"><l.Icon size={22} strokeWidth={2} /></div>
-                  <h4>{l.name}</h4>
-                  <p>{l.desc}</p>
-                </article>
-              ))}
-            </div>
-          </div>
         </div>
       </div>
 
