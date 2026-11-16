@@ -26,7 +26,7 @@ export default async function LoginPage({ searchParams }: PageProps<"/login">) {
     <main className="lg">
       <div className="lg-shell">
         {/* Panel kiri: foto sekolah (disembunyikan di HP) */}
-        <aside className="lg-side" style={{ backgroundImage: "url('/hero.jpg')" }}>
+        <aside className="lg-side" style={{ backgroundImage: "url('/hero.jpeg')" }}>
           <div className="lg-side-overlay" />
           <div className="lg-side-content">
             <div className="lg-side-brand">
@@ -41,7 +41,7 @@ export default async function LoginPage({ searchParams }: PageProps<"/login">) {
               </p>
             </div>
             <p className="lg-side-visi">
-              “Terbentuknya generasi Qurani yang berakhlak mulia, berkemajuan, dan unggul dalam ilmu pengetahuan serta teknologi”
+              “Setiap anak adalah bibit unggul yang bertumbuh optimal di tanah yang penuh kasih dan keteladanan.”
             </p>
           </div>
         </aside>
