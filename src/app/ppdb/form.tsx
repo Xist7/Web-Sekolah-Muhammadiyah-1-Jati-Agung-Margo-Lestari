@@ -31,6 +31,8 @@ const msgs: Record<string, string> = {
   desa: "Isi desa / kelurahan.",
   kec: "Isi kecamatan.",
   kab: "Isi kabupaten / kota.",
+  kerjaLain: "Sebutkan pekerjaan orang tua / wali.",
+  infoLainTxt: "Sebutkan dari mana Anda mengetahui PPDB ini.",
 };
 
 const infoOptions = ["Sosial Media", "Keluarga", "Website", "Saudara", "Teman", "Guru", "Tetangga"];
@@ -58,6 +60,7 @@ export function PpdbForm() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [nisnLen, setNisnLen] = useState(0);
   const [lainChecked, setLainChecked] = useState(false);
+  const [kerjaLain, setKerjaLain] = useState(false); // pekerjaan "Lainnya" → tampilkan kolom isian
   const [files, setFiles] = useState<Partial<Record<FileKey, File>>>({});
   const [fileErrors, setFileErrors] = useState<Partial<Record<FileKey, string>>>({});
   const [saveStatus, setSaveStatus] = useState("Draf belum disimpan");
@@ -131,6 +134,7 @@ export function PpdbForm() {
     });
     const lain = form.querySelector<HTMLInputElement>("#infoLain");
     setLainChecked(!!lain?.checked);
+    setKerjaLain(form.querySelector<HTMLSelectElement>("#kerja")?.value === "Lainnya");
     const nisnVal = form.querySelector<HTMLInputElement>("#nisn")?.value ?? "";
     setNisnLen(nisnVal.length);
     lookupNisn(nisnVal);
@@ -173,7 +177,10 @@ export function PpdbForm() {
       fail(form.querySelector("input[name=jk]"));
     }
     const lainTxt = form.querySelector<HTMLInputElement>("#infoLainTxt");
-    if (lainChecked && !lainTxt?.value.trim()) fail(lainTxt);
+    if (lainChecked && !lainTxt?.value.trim()) {
+      setErr("infoLainTxt", msgs.infoLainTxt);
+      fail(lainTxt);
+    }
     (["foto", "skl"] as const).forEach((k) => {
       if (!files[k]) {
         setFileErrors((fe) => ({ ...fe, [k]: "Berkas ini wajib diunggah." }));
@@ -352,12 +359,27 @@ export function PpdbForm() {
               />
               <span className="hint">Format: 08xx</span><span className="err">{errors.wa}</span>
             </div>
-            <div className="field">
+            <div className={fieldClass("kerjaLain")}>
               <label htmlFor="kerja">Pekerjaan Utama</label>
-              <select id="kerja" name="kerja">
+              <select
+                id="kerja"
+                name="kerja"
+                onChange={(e) => {
+                  const lain = e.target.value === "Lainnya";
+                  setKerjaLain(lain);
+                  setErr("kerjaLain", "");
+                  if (lain) setTimeout(() => formRef.current?.querySelector<HTMLInputElement>("#kerjaLain")?.focus());
+                }}
+              >
                 <option>Karyawan Swasta / BUMN</option><option>PNS / TNI / Polri</option><option>Wiraswasta</option>
                 <option>Petani / Pekebun</option><option>Guru / Dosen</option><option>Lainnya</option>
               </select>
+              {/* Muncul saat memilih "Lainnya" (tetap ada di halaman agar draf bisa dipulihkan) */}
+              <div hidden={!kerjaLain} style={{ marginTop: 10 }}>
+                <label htmlFor="kerjaLain">Sebutkan Pekerjaan<span className="req">*</span></label>
+                <input {...fieldProps("kerjaLain")} type="text" placeholder="Contoh: Pedagang, Sopir, Ibu Rumah Tangga" required={kerjaLain} disabled={!kerjaLain} maxLength={100} />
+                <span className="err">{errors.kerjaLain}</span>
+              </div>
             </div>
             <div className={fieldClass("jalan", " full")}>
               <label htmlFor="jalan">Jalan / Dusun<span className="req">*</span></label>
@@ -432,6 +454,7 @@ export function PpdbForm() {
                 <input
                   type="checkbox"
                   id="infoLain"
+                  name="infoLainCek"
                   checked={lainChecked}
                   onChange={(e) => {
                     setLainChecked(e.target.checked);
@@ -441,9 +464,24 @@ export function PpdbForm() {
                     else txt.value = "";
                   }}
                 />{" "}
-                Yang lain :
-                <input type="text" id="infoLainTxt" name="infoLain" placeholder="Sebutkan…" disabled={!lainChecked} aria-label="Sumber informasi lainnya" />
+                Yang lain
               </label>
+            </div>
+            {/* Muncul saat "Yang lain" dicentang */}
+            <div className={fieldClass("infoLainTxt")} hidden={!lainChecked} style={{ padding: "0 24px 24px", marginTop: -8 }}>
+              <label htmlFor="infoLainTxt">Sebutkan Sumber Lainnya<span className="req">*</span></label>
+              <input
+                type="text"
+                id="infoLainTxt"
+                name="infoLain"
+                placeholder="Contoh: Spanduk di depan sekolah, brosur, radio"
+                maxLength={200}
+                required={lainChecked}
+                disabled={!lainChecked}
+                onBlur={(e) => checkField(e.currentTarget)}
+                onInput={(e) => { if (errors.infoLainTxt) checkField(e.currentTarget); }}
+              />
+              <span className="err">{errors.infoLainTxt}</span>
             </div>
           </fieldset>
         </section>
