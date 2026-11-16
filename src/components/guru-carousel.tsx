@@ -1,41 +1,78 @@
 "use client";
 
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import { Reveal } from "@/components/reveal";
+import { guru, type Guru } from "@/data/guru";
 
-type Guru = { nama: string; mapel: string; foto: string };
-type Props = { eyebrow: string; judul: string; subjudul: string; daftar: Guru[] };
+type Props = {
+  eyebrow?: string;
+  judul?: string;
+  subjudul?: string;
+  daftar?: Guru[];
+};
 
-export function GuruCarousel({ eyebrow, judul, subjudul, daftar }: Props) {
-  const track = useRef<HTMLDivElement>(null);
-  const geser = (arah: 1 | -1) =>
-    track.current?.scrollBy({ left: arah * 300, behavior: "smooth" });
+// "Siti Wardani" -> "SW", "RAHMAT, S.Pd" -> "R" (gelar setelah koma diabaikan)
+function inisial(nama: string) {
+  const kata = nama.split(",")[0].trim().split(/\s+/).filter(Boolean);
+  return kata
+    .slice(0, 2)
+    .map((k) => k[0]?.toUpperCase())
+    .join("");
+}
 
+function FotoGuru({ nama, foto }: { nama: string; foto?: string }) {
+  const [gagal, setGagal] = useState(false);
+  const img = useRef<HTMLImageElement>(null);
+
+  // Gambar yang gagal sebelum React siap tidak memicu onError, jadi cek sekali setelah mount
+  useEffect(() => {
+    const el = img.current;
+    if (el && el.complete && el.naturalWidth === 0) setGagal(true);
+  }, []);
+
+  if (!foto || gagal) {
+    return (
+      <div className="tp-foto tp-foto-inisial" role="img" aria-label={`Foto ${nama} belum tersedia`}>
+        {inisial(nama)}
+      </div>
+    );
+  }
+
+  return (
+    <div className="tp-foto">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img ref={img} src={foto} alt={`Foto ${nama}`} onError={() => setGagal(true)} />
+    </div>
+  );
+}
+
+export function GuruCarousel({
+  eyebrow = "Guru & Staf",
+  judul = "Tenaga Pendidik",
+  subjudul = "Dibimbing oleh guru-guru profesional yang ahli di bidangnya.",
+  daftar = guru,
+}: Props = {}) {
   return (
     <section className="guru" aria-labelledby="h-guru">
       <div className="container">
-        <div className="section-head center">
-        {eyebrow && <p className="eyebrow">{eyebrow}</p>}
-        <h2 className="section-title" id="h-guru">{judul}</h2>
-        {subjudul && <p className="guru-sub">{subjudul}</p>}
-        </div>
-        <div className="guru-wrap">
-          <button type="button" className="guru-nav" onClick={() => geser(-1)} aria-label="Geser ke kiri">‹</button>
-          <div className="guru-track" ref={track}>
-            {daftar.map((g, i) => (
-              <article className="guru-card" key={i}>
-                {g.foto ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={g.foto} alt={`Foto ${g.nama}`} loading="lazy" />
-                ) : (
-                  <div className="guru-ph" role="img" aria-label={`Foto ${g.nama}`}>👤</div>
-                )}
-                <h3>{g.nama}</h3>
-                <p>{g.mapel}</p>
-              </article>
-            ))}
+        <Reveal>
+          <div className="tp-layout">
+            <div className="tp-head">
+              {eyebrow && <p className="eyebrow">{eyebrow}</p>}
+              <h2 className="section-title" id="h-guru">{judul}</h2>
+              {subjudul && <p className="tp-sub">{subjudul}</p>}
+            </div>
+            <div className="tp-grid">
+              {daftar.map((g, i) => (
+                <article className="tp-card" key={i}>
+                  <FotoGuru nama={g.nama} foto={g.foto} />
+                  <h3>{g.nama}</h3>
+                  <p>{g.mapel}</p>
+                </article>
+              ))}
+            </div>
           </div>
-          <button type="button" className="guru-nav" onClick={() => geser(1)} aria-label="Geser ke kanan">›</button>
-        </div>
+        </Reveal>
       </div>
     </section>
   );

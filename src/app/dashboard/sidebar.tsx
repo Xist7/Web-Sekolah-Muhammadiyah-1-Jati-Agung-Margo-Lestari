@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState, type CSSProperties, type ReactNode } from "react";
 import { Toaster } from "@/components/admin/toast";
 import { sections, type ContentKey } from "@/lib/content/defaults";
+import Image from "next/image";
 
 type Item = { href: string; label: string; icon: string };
 
@@ -133,7 +134,13 @@ export function AdminShell({ email, name, children }: { email: string; name: str
         {/* Bagian atas: diam (tidak ikut ter-scroll) */}
         <div className="flex-none">
           <div className={`flex items-center gap-3 pt-6 pb-4 ${mini ? "justify-center px-2" : "px-6"}`}>
-            <span className="grid h-11 w-11 flex-none place-items-center rounded-full bg-white/15 text-2xl ring-1 ring-white/30" aria-hidden="true">🌱</span>
+            <Image
+              src="/logoSkula.png"
+              alt="Logo SMP Muhammadiyah 1 Jati Agung"
+              width={44}
+              height={44}
+              className="h-11 w-11 flex-none rounded-full bg-white object-contain p-0.5 ring-1 ring-white/30"
+            />
             {!mini && (
               <div className="min-w-0 leading-tight">
                 <p className="text-lg font-bold tracking-tight">Panel Sekolah</p>

@@ -26,6 +26,7 @@ const schema = z.object({
   hub: t("Hubungan"),
   wa: z.string().trim().regex(/^(\+62|62|0)8\d{8,12}$/, "Nomor WhatsApp tidak valid"),
   kerja: z.string().trim().max(100).default(""),
+  kerjaLain: z.string().trim().max(100).default(""),
   jalan: t("Jalan / dusun", 3),
   rt: z.string().trim().regex(/^\d{1,3}$/, "RT harus angka"),
   rw: z.string().trim().regex(/^\d{1,3}$/, "RW harus angka"),
@@ -91,6 +92,13 @@ export async function submitRegistration(formData: FormData): Promise<SubmitResu
         fieldErrors: z.flattenError(parsed.error).fieldErrors as Record<string, string[] | undefined>,
       };
     }
+    // Pilihan "Lainnya" / "Yang lain" wajib disebutkan
+    if (parsed.data.kerja === "Lainnya" && !parsed.data.kerjaLain) {
+      return { ok: false, message: "Sebutkan pekerjaan orang tua / wali.", fieldErrors: { kerjaLain: ["Sebutkan pekerjaan orang tua / wali."] } };
+    }
+    if (formData.get("infoLainCek") === "on" && !parsed.data.infoLain) {
+      return { ok: false, message: "Sebutkan dari mana Anda mengetahui PPDB ini.", fieldErrors: { infoLainTxt: ["Sebutkan dari mana Anda mengetahui PPDB ini."] } };
+    }
     const foto = readFile(formData, "foto");
     const skl = readFile(formData, "skl");
     if (foto.error || skl.error) {
@@ -140,7 +148,7 @@ export async function submitRegistration(formData: FormData): Promise<SubmitResu
             parentName: d.ortu,
             parentRelation: d.hub,
             parentPhone: d.wa,
-            parentJob: d.kerja,
+            parentJob: d.kerja === "Lainnya" && d.kerjaLain ? `Lainnya: ${d.kerjaLain}` : d.kerja,
             address: `${d.jalan}, RT ${d.rt.padStart(2, "0")} / RW ${d.rw.padStart(2, "0")}, Desa ${d.desa}, Kec. ${d.kec}, ${d.kab}`,
             infoSource: sources.join(", "),
             photoId,

@@ -1,15 +1,19 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
-// "Pendaftaran Siswa Baru" dihapus: sudah diwakili tombol "Daftar Sekarang"
+// Urutan menu disamakan dengan urutan section di beranda (supaya highlight saat scroll pas)
 const nav = [
   { href: "/", label: "Beranda" },
-  { href: "/#program", label: "Profil & Program" },
+  { href: "/#program", label: "Profil" },
   { href: "/#fasilitas", label: "Fasilitas" },
-  { href: "/#kontak", label: "Kontak & Bantuan" },
+  { href: "/#prestasi", label: "Prestasi" },
+  { href: "/#ekskul", label: "Ekskul" },
+  { href: "/berita", label: "Berita" },
+  { href: "/#kontak", label: "Kontak" },
 ];
 const sectionIds = nav.filter((n) => n.href.startsWith("/#")).map((n) => n.href.slice(2));
 const HEADER_OFFSET = 120; // tinggi header (80px) + sedikit ruang
@@ -47,10 +51,17 @@ export function Header() {
     <header className="site-header">
       <div className="container">
         <Link className="brand" href="/" aria-label="SMP Muhammadiyah 1 Jati Agung — beranda">
-          <span className="logo" aria-hidden="true">🌱</span>
+          <Image
+            className="brand-logo-img"
+            src="/logoSkula.png"
+            alt="Logo SMP Muhammadiyah 1 Jati Agung"
+            width={48}
+            height={48}
+            priority
+          />
           <div>
             <b>SMP Muhammadiyah 1 Jati Agung</b>
-            <small>Portal Resmi &amp; PPDB</small>
+            <small>Lampung Selatan</small>
           </div>
         </Link>
         <nav className={`main-nav${open ? " open" : ""}`} id="nav" aria-label="Navigasi utama">
