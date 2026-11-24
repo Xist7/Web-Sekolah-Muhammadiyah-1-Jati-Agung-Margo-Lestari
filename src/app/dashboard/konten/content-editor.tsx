@@ -324,6 +324,8 @@ function ListEditor({ def, value, template, onChange }: { def: Extract<FieldDef,
   const add = () => {
     onChange([...value, newItem(def.fields, template)]);
     setOpenIdx(value.length);
+    // Item baru ada di paling bawah daftar: gulir ke sana supaya formnya langsung terlihat
+    requestAnimationFrame(() => listRef.current?.lastElementChild?.scrollIntoView({ block: "center", behavior: "smooth" }));
   };
 
   const menuFor = (i: number): MenuItem[] => {

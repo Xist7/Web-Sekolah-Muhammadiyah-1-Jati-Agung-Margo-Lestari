@@ -6,6 +6,7 @@ import { z } from "zod";
 import { Prisma } from "@/generated/prisma/client";
 import { db } from "@/lib/db";
 import { allowAttempt, clientIp, MIN_FILL_MS, verifyTurnstile } from "./antispam";
+import { nomorBerikutnya } from "./nomor";
 
 export type SubmitResult =
   | { ok: true; regNumber: string; name: string }
@@ -132,8 +133,7 @@ export async function submitRegistration(formData: FormData): Promise<SubmitResu
     const year = new Date().getFullYear();
     // Nomor urut; ulangi kalau bentrok dengan pendaftar lain yang submit bersamaan
     for (let attempt = 0; attempt < 5; attempt++) {
-      const n = (await db.registration.count()) + 1 + attempt;
-      const regNumber = `PPDB-${year}-${String(n).padStart(4, "0")}`;
+      const regNumber = await nomorBerikutnya(year);
       try {
         await db.registration.create({
           data: {

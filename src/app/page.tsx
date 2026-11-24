@@ -30,12 +30,13 @@ const newsIcon = (category: string) =>
 
 export default async function HomePage() {
   // Isi beranda diambil dari panel admin (Pengaturan → Beranda); kalau belum diedit, pakai isi bawaan
-  const [hero, sambutan, guru, fasilitas, prestasi, ppdb] = await Promise.all([
+  const [hero, sambutan, guru, fasilitas, prestasi, ekskul, ppdb] = await Promise.all([
     getContent("hero"),
     getContent("sambutan"),
     getContent("guru"),
     getContent("fasilitas"),
     getContent("prestasi"),
+    getContent("ekskul"),
     getPpdbStatus(),
   ]);
   const kepala = guru.daftar.find((g) => g.kepalaSekolah);
@@ -202,15 +203,15 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* EKSKUL: slider (Pramuka, Silat, Ekskul Lainnya) */}
+      {/* EKSKUL: slider, isi dari admin (Pengaturan → Ekstrakurikuler) */}
       <section className="section" id="ekskul">
         <div className="container">
           <Reveal>
             <div className="section-head">
-              <p className="eyebrow">Ekstrakurikuler</p>
-              <h2 className="section-title">Ekstrakurikuler Pilihan &amp; Bakat Minat</h2>
+              {ekskul.eyebrow && <p className="eyebrow">{ekskul.eyebrow}</p>}
+              <h2 className="section-title">{ekskul.judul}</h2>
             </div>
-            <EkskulSlider />
+            <EkskulSlider items={ekskul.daftar} />
           </Reveal>
         </div>
       </section>

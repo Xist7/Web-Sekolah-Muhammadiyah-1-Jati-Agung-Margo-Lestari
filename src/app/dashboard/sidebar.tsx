@@ -39,6 +39,7 @@ const pengaturan: { key: string; label: string; items: Item[] }[] = [
 const top: Item[] = [
   { href: "/dashboard", label: "Overview", icon: "📊" },
   { href: "/dashboard/pendaftar", label: "Pendaftar PPDB", icon: "🎓" },
+  { href: "/dashboard/arsip", label: "Arsip PPDB", icon: "📦" },
 ];
 const sistem: Item[] = [
   { href: "/dashboard/database", label: "Database", icon: "🗄️" },
@@ -61,7 +62,7 @@ const save = (v: Saved) => {
   } catch {}
 };
 
-export function AdminShell({ email, name, children }: { email: string; name: string; children: ReactNode }) {
+export function AdminShell({ email, name, role, children }: { email: string; name: string; role: "SUPERADMIN" | "ADMIN"; children: ReactNode }) {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false); // desktop: mode ikon saja
@@ -159,7 +160,7 @@ export function AdminShell({ email, name, children }: { email: string; name: str
             {!mini && (
               <div className="min-w-0 leading-tight">
                 <p className="truncate text-sm font-semibold" title={name || email}>{name || email}</p>
-                <p className="text-[11px] text-emerald-100/70">Admin</p>
+                <p className="text-[11px] text-emerald-100/70">{role === "SUPERADMIN" ? "👑 Superadmin" : "Admin"}</p>
               </div>
             )}
           </div>
