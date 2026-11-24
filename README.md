@@ -148,7 +148,8 @@ cp .env.example .env
 | `DIRECT_URL` | Sama, tapi *Connection pooling* **dimatikan** |
 | `AUTH_SECRET` | Jalankan `npx auth secret`, salin hasilnya |
 | `AUTH_GOOGLE_ID` / `AUTH_GOOGLE_SECRET` | Google Cloud Console (lihat langkah 4) |
-| `ADMIN_EMAILS` | Email Google yang boleh login admin, pisahkan koma |
+| `SUPERADMIN_EMAIL` | SATU email Google superadmin (tidak bisa diubah/dihapus dari panel) |
+| `ADMIN_EMAILS` | Admin cadangan (opsional), pisahkan koma |
 
 **Cara cepat tanpa Neon (khusus coba-coba lokal):** jalankan `npx prisma dev -n smpmuh --detach`, salin URL `postgres://...` yang muncul ke `DATABASE_URL` (`DIRECT_URL` boleh dihapus). Matikan dengan `npx prisma dev stop smpmuh`.
 
@@ -206,7 +207,7 @@ Buka http://localhost:3000. Kalau status **Database: terhubung** dan tombol **Lo
 ## Deploy ke Vercel
 
 1. Login [vercel.com](https://vercel.com) pakai GitHub → **Add New → Project** → import repo ini.
-2. Isi **Environment Variables**: `DATABASE_URL`, `DIRECT_URL`, `AUTH_SECRET`, `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET`, `ADMIN_EMAILS`.
+2. Isi **Environment Variables**: `DATABASE_URL`, `DIRECT_URL`, `AUTH_SECRET`, `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET`, `SUPERADMIN_EMAIL`, `ADMIN_EMAILS`.
    (Atau lewat **Storage → Neon** di dashboard Vercel, `DATABASE_URL` terisi otomatis.)
 3. Tambahkan redirect URI produksi di Google Console (lihat langkah 4 di atas).
 4. Deploy. Script `vercel-build` otomatis menjalankan `prisma migrate deploy` sebelum `next build`.

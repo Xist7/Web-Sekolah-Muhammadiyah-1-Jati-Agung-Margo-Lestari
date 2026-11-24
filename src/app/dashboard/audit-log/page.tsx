@@ -16,6 +16,7 @@ const ACTIONS: Record<string, { label: string; icon: string; tone: string }> = {
   PUBLISH: { label: "Terbitkan", icon: "🚀", tone: "bg-emerald-50 text-emerald-700 ring-emerald-200" },
   OPEN: { label: "Buka PPDB", icon: "🟢", tone: "bg-emerald-50 text-emerald-700 ring-emerald-200" },
   CLOSE: { label: "Tutup PPDB", icon: "🔒", tone: "bg-red-50 text-red-700 ring-red-200" },
+  DOWNLOAD: { label: "Unduh CSV", icon: "⬇️", tone: "bg-sky-50 text-sky-700 ring-sky-200" },
 };
 
 const TZ = "Asia/Jakarta";
@@ -55,6 +56,7 @@ export default async function AuditLogPage({ searchParams }: PageProps<"/dashboa
 
   const where: Prisma.AuditLogWhereInput = {
     ...(role === "admin" && { actorRole: "ADMIN" }),
+    ...(role === "superadmin" && { actorRole: "SUPERADMIN" }),
     ...((dari || sampai) && {
       createdAt: {
         ...(dari && { gte: new Date(`${dari}T00:00:00+07:00`) }),
@@ -117,6 +119,7 @@ export default async function AuditLogPage({ searchParams }: PageProps<"/dashboa
             <label htmlFor="f-role" className="mb-1 block text-xs font-semibold text-slate-600">Filter by Role</label>
             <select id="f-role" name="role" defaultValue={role} className={input}>
               <option value="">Semua Role</option>
+              <option value="superadmin">Superadmin</option>
               <option value="admin">Admin</option>
             </select>
           </div>
@@ -172,7 +175,7 @@ export default async function AuditLogPage({ searchParams }: PageProps<"/dashboa
                         <div className="mt-1.5 flex flex-wrap items-center gap-2 text-xs">
                           <span className={`rounded-full px-2.5 py-0.5 font-semibold ring-1 ${a.tone}`}>{a.label}</span>
                           <span className="grid h-5 min-w-5 place-items-center rounded-full bg-slate-200 px-1 text-[9px] font-bold text-slate-600">{initials(who)}</span>
-                          <span className="text-slate-500">{l.actorRole === "ADMIN" ? "Admin" : l.actorRole}</span>
+                          <span className="text-slate-500">{l.actorRole === "SUPERADMIN" ? "👑 Superadmin" : l.actorRole === "ADMIN" ? "Admin" : l.actorRole}</span>
                           {l.actorName && <span className="truncate text-slate-400">{l.actorEmail}</span>}
                         </div>
                       </div>

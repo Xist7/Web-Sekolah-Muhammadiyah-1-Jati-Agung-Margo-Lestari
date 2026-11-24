@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { requireAdminPage } from "@/lib/admin/guard";
 import { getDashboardStats } from "@/lib/admin/queries";
 import { formatDeadline, isPpdbExpired, isPpdbOpen } from "@/lib/ppdb/deadline";
@@ -38,6 +39,13 @@ export default async function DashboardPage() {
         expired={isPpdbExpired(ppdb)}
         deadline={ppdb?.closesAt ? formatDeadline(ppdb.closesAt, ppdb.closesAtTime) : ""}
       />
+
+      {!open && total > 0 && (
+        <Link href="/dashboard/arsip" className="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-sky-50 px-5 py-4 text-sm text-sky-900 ring-1 ring-sky-200 hover:bg-sky-100">
+          <span>📦 Pendaftaran sudah ditutup. Unduh arsip CSV, lalu hapus data terlama supaya database muat untuk pendaftar tahun berikutnya.</span>
+          <span className="font-semibold whitespace-nowrap">Buka Arsip PPDB →</span>
+        </Link>
+      )}
 
       <section className="grid grid-cols-2 gap-4 md:grid-cols-4">
         {stats.map((s) => (

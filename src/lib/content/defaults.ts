@@ -10,6 +10,7 @@
 /** Ikon/gambar: admin pilih pakai emoji atau unggah gambar. */
 export type Media = { jenis: string; emoji: string; gambar: string };
 const emoji = (e: string): Media => ({ jenis: "emoji", emoji: e, gambar: "" });
+const gambar = (url: string, e: string): Media => ({ jenis: "gambar", emoji: e, gambar: url });
 
 export type FieldDef =
   | { k: string; label: string; type: "text" | "textarea" | "url" | "date" | "number"; help?: string }
@@ -234,7 +235,7 @@ const ekskul = section({
   icon: "⚽",
   group: "beranda",
   anchor: "ekskul",
-  description: "Daftar ekskul. Pengunjung bisa klik salah satu ekskul untuk melihat penjelasannya.",
+  description: "Daftar ekskul, tampil sebagai slide di beranda. Bisa tambah / hapus / urutkan; jumlah slide menyesuaikan.",
   fields: [
     { k: "eyebrow", label: "Judul Kecil", type: "text" },
     { k: "judul", label: "Judul", type: "text" },
@@ -244,7 +245,8 @@ const ekskul = section({
         { k: "media", label: "Ikon / Gambar", type: "media" },
         { k: "nama", label: "Nama Ekskul", type: "text" },
         { k: "keterangan", label: "Keterangan Singkat", type: "text" },
-        { k: "deskripsi", label: "Penjelasan (muncul saat ekskul diklik)", type: "textarea" },
+        { k: "deskripsi", label: "Penjelasan", type: "textarea" },
+        { k: "video", label: "Link Video (opsional)", type: "url", help: "Link YouTube atau file .mp4. Kalau diisi, video tampil menggantikan gambar." },
       ],
     },
   ],
@@ -252,12 +254,12 @@ const ekskul = section({
     eyebrow: "Ekstrakurikuler",
     judul: "Ekstrakurikuler Pilihan & Bakat Minat",
     daftar: [
-    { media: emoji("⚜️"), nama: "Pramuka", keterangan: "Kepanduan", deskripsi: "Membentuk karakter disiplin, mandiri, dan peduli lingkungan melalui kegiatan kepanduan yang menyenangkan." },
-    { media: emoji("🥋"), nama: "Tapak Suci", keterangan: "Bela Diri", deskripsi: "Melatih kebugaran, disiplin, dan kepercayaan diri siswa melalui seni bela diri." },
-    { media: emoji("⚽"), nama: "Sepak Bola", keterangan: "Olahraga Tim", deskripsi: "Membangun kekompakan tim, sportivitas, dan kebugaran jasmani siswa." },
-    { media: emoji("🧭"), nama: "Hizbul Wathan", keterangan: "Kepanduan Muhammadiyah", deskripsi: "Membentuk karakter mandiri, disiplin, dan cinta tanah air melalui kepanduan." },
-    { media: emoji("🥁"), nama: "Hadroh", keterangan: "Seni Musik Islami", deskripsi: "Mengembangkan bakat seni musik islami dan kecintaan pada shalawat." },
-  ],
+      { media: gambar("/ekskul/pramuka.jpeg", "⚜️"), nama: "Pramuka", keterangan: "Kepanduan", deskripsi: "Membentuk karakter disiplin, mandiri, dan peduli lingkungan melalui kegiatan kepanduan yang menyenangkan.", video: "" },
+      { media: emoji("🥋"), nama: "Tapak Suci", keterangan: "Bela Diri", deskripsi: "Melatih kebugaran, disiplin, dan kepercayaan diri siswa melalui seni bela diri.", video: "/ekskul/silat.mp4" },
+      { media: emoji("⚽"), nama: "Sepak Bola", keterangan: "Olahraga Tim", deskripsi: "Membangun kekompakan tim, sportivitas, dan kebugaran jasmani siswa.", video: "" },
+      { media: emoji("🧭"), nama: "Hizbul Wathan", keterangan: "Kepanduan Muhammadiyah", deskripsi: "Membentuk karakter mandiri, disiplin, dan cinta tanah air melalui kepanduan.", video: "" },
+      { media: emoji("🥁"), nama: "Hadroh", keterangan: "Seni Musik Islami", deskripsi: "Mengembangkan bakat seni musik islami dan kecintaan pada shalawat.", video: "" },
+    ],
   },
 });
 

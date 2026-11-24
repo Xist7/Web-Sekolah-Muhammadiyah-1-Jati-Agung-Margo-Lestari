@@ -7,6 +7,9 @@ import { logAudit } from "@/lib/audit";
 import { db } from "@/lib/db";
 import type { ActionResult } from "./actions";
 import { requireAdmin, UnauthorizedError } from "./guard";
+import { isSuperadmin } from "./roles";
+
+const LOCKED: ActionResult = { ok: false, message: "Superadmin tidak bisa diubah, dinonaktifkan, atau dihapus." };
 
 const emailSchema = z.email("Email tidak valid").trim().toLowerCase().max(200);
 
@@ -31,6 +34,7 @@ export async function addAdmin(_prev: ActionResult | null, formData: FormData): 
   return run(async (me) => {
     const p = emailSchema.safeParse(formData.get("email"));
     if (!p.success) return { ok: false, message: p.error.issues[0]?.message ?? "Email tidak valid." };
+    if (isSuperadmin(p.data)) return { ok: false, message: "Email ini adalah Superadmin, sudah otomatis punya akses." };
     await db.admin.create({ data: { email: p.data, createdBy: me.email } });
     await logAudit(me, "CREATE", "menambahkan admin baru", p.data);
     return { ok: true, message: `${p.data} ditambahkan sebagai admin.` };
@@ -41,6 +45,7 @@ export async function addAdmin(_prev: ActionResult | null, formData: FormData): 
 export async function setAdminActive(id: string, isActive: boolean): Promise<ActionResult> {
   return run(async (me) => {
     const target = await db.admin.findUniqueOrThrow({ where: { id } });
+    if (isSuperadmin(target.email)) return LOCKED;
     if (target.email === me.email && !isActive) return { ok: false, message: "Tidak bisa menonaktifkan akun sendiri." };
     await db.admin.update({ where: { id }, data: { isActive } });
     await logAudit(me, "UPDATE", isActive ? "mengaktifkan admin" : "menonaktifkan admin", target.email);
@@ -51,6 +56,7 @@ export async function setAdminActive(id: string, isActive: boolean): Promise<Act
 export async function deleteAdmin(id: string): Promise<ActionResult> {
   return run(async (me) => {
     const target = await db.admin.findUniqueOrThrow({ where: { id } });
+    if (isSuperadmin(target.email)) return LOCKED;
     if (target.email === me.email) return { ok: false, message: "Tidak bisa menghapus akun sendiri." };
     await db.admin.delete({ where: { id } });
     await logAudit(me, "DELETE", "menghapus admin", target.email);

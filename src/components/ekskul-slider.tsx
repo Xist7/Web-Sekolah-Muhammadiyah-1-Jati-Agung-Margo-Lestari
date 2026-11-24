@@ -2,46 +2,37 @@
 
 import { useEffect, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import type { Media } from "@/lib/content/defaults";
 
-type Media =
-  | { kind: "image"; src: string; alt: string }
+/** Satu ekskul dari panel admin (Pengaturan → Ekstrakurikuler). */
+export type Ekskul = { nama: string; keterangan: string; deskripsi: string; media: Media; video: string };
+
+type Tampilan =
+  | { kind: "youtube"; id: string }
   | { kind: "video"; src: string }
-  | { kind: "youtube"; id: string; title: string };
+  | { kind: "image"; src: string }
+  | { kind: "emoji"; emoji: string };
 
-type Unggulan = { title: string; desc: string; media?: Media };
+const YOUTUBE = /(?:youtu\.be\/|youtube(?:-nocookie)?\.com\/(?:watch\?(?:[^#]*&)?v=|embed\/|shorts\/|live\/))([\w-]{11})/;
+const FILE_VIDEO = /\.(mp4|webm|mov)(\?.*)?$/i;
 
-const unggulan: Unggulan[] = [
-  {
-    title: "Pramuka",
-    desc: "Membentuk karakter disiplin, mandiri, dan peduli lingkungan melalui kegiatan kepanduan yang menyenangkan.",
-    media: { kind: "image", src: "/ekskul/pramuka.jpeg", alt: "Kegiatan Pramuka SMP Muhammadiyah 1 Jati Agung" },
-  },
-  {
-    title: "Tapak Suci",
-    desc: "Melatih kebugaran, disiplin, dan kepercayaan diri siswa melalui seni bela diri.",
-    media: { kind: "video", src: "/ekskul/silat.mp4" },
-  },
-  {
-    title: "Sepak Bola",
-    desc: "Membangun kekompakan tim, sportivitas, dan kebugaran jasmani siswa.",
-  },
-  {
-    title: "Hizbul Wathan",
-    desc: "Membentuk karakter mandiri, disiplin, dan cinta tanah air melalui kepanduan.",
-  },
-  {
-    title: "Hadroh",
-    desc: "Mengembangkan bakat seni musik islami dan kecintaan pada shalawat.",
-  },
-];
+/** Urutan prioritas: video → gambar → emoji. Link video yang tidak bisa diputar diabaikan. */
+function tampilan(e: Ekskul): Tampilan {
+  const video = e.video.trim();
+  const yt = video.match(YOUTUBE)?.[1];
+  if (yt) return { kind: "youtube", id: yt };
+  if (FILE_VIDEO.test(video)) return { kind: "video", src: video };
+  if (e.media.jenis === "gambar" && e.media.gambar) return { kind: "image", src: e.media.gambar };
+  return { kind: "emoji", emoji: e.media.emoji };
+}
 
-function MediaView({ media, active }: { media: Media; active: boolean }) {
+function MediaView({ media, nama, active }: { media: Exclude<Tampilan, { kind: "emoji" }>; nama: string; active: boolean }) {
   if (media.kind === "image") {
     return (
       <div
         className="ek-img"
         role="img"
-        aria-label={media.alt}
+        aria-label={`Kegiatan ${nama} SMP Muhammadiyah 1 Jati Agung`}
         style={{ backgroundImage: `url('${media.src}')` }}
       />
     );
@@ -53,7 +44,7 @@ function MediaView({ media, active }: { media: Media; active: boolean }) {
   return active ? (
     <iframe
       src={`https://www.youtube-nocookie.com/embed/${media.id}`}
-      title={media.title}
+      title={`Video ${nama}`}
       allow="accelerometer; encrypted-media; picture-in-picture"
       allowFullScreen
       loading="lazy"
@@ -61,9 +52,10 @@ function MediaView({ media, active }: { media: Media; active: boolean }) {
   ) : null;
 }
 
-export function EkskulSlider() {
-  const total = unggulan.length; // + slide "Ekskul Lainnya"
-  const [i, setI] = useState(0);
+export function EkskulSlider({ items }: { items: Ekskul[] }) {
+  const total = items.length;
+  const [index, setIndex] = useState(0);
+  const i = Math.max(0, Math.min(index, total - 1)); // tetap aman bila jumlah ekskul berkurang
   const root = useRef<HTMLDivElement>(null);
   const touchX = useRef<number | null>(null);
 
@@ -72,8 +64,8 @@ export function EkskulSlider() {
     root.current?.querySelectorAll("video").forEach((v) => v.pause());
   }, [i]);
 
-  const prev = () => setI((n) => Math.max(0, n - 1));
-  const next = () => setI((n) => Math.min(total - 1, n + 1));
+  const prev = () => setIndex(Math.max(0, i - 1));
+  const next = () => setIndex(Math.min(total - 1, i + 1));
 
   const onTouchStart = (e: React.TouchEvent) => {
     // jangan anggap geser di kontrol video sebagai geser slide
@@ -87,6 +79,8 @@ export function EkskulSlider() {
     else if (dx > 50) prev();
   };
 
+  if (total === 0) return <p style={{ color: "var(--muted-2)" }}>Belum ada ekstrakurikuler.</p>;
+
   return (
     <div
       className="ek"
@@ -97,21 +91,26 @@ export function EkskulSlider() {
     >
       <div className="ek-viewport" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
         <div className="ek-track" style={{ transform: `translateX(-${i * 100}%)` }}>
-          {unggulan.map((e, idx) => (
-            <div className={`ek-slide${i === idx ? " is-active" : ""}`} key={e.title}>
-              <div className="ek-feature">
-                {e.media && (
-                <div className="ek-media">
-                  <MediaView media={e.media} active={i === idx} />
-                </div>
-                )}
-                <div className="ek-text">
-                  <h3>{e.title}</h3>
-                  <p>{e.desc}</p>
+          {items.map((e, idx) => {
+            const media = tampilan(e);
+            return (
+              <div className={`ek-slide${i === idx ? " is-active" : ""}`} key={idx}>
+                <div className="ek-feature">
+                  {media.kind !== "emoji" && (
+                    <div className="ek-media">
+                      <MediaView media={media} nama={e.nama} active={i === idx} />
+                    </div>
+                  )}
+                  <div className="ek-text">
+                    {media.kind === "emoji" && media.emoji && <span className="ek-emoji" aria-hidden="true">{media.emoji}</span>}
+                    {e.keterangan && <p className="eyebrow">{e.keterangan}</p>}
+                    <h3>{e.nama}</h3>
+                    {e.deskripsi && <p>{e.deskripsi}</p>}
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 
@@ -126,17 +125,19 @@ export function EkskulSlider() {
         </button>
       )}
 
-      <div className="ek-dots">
-        {Array.from({ length: total }).map((_, n) => (
-          <button
-            type="button"
-            key={n}
-            className={`ek-dot${n === i ? " is-active" : ""}`}
-            onClick={() => setI(n)}
-            aria-label={`Ke slide ${n + 1}`}
-          />
-        ))}
-      </div>
+      {total > 1 && (
+        <div className="ek-dots">
+          {items.map((e, n) => (
+            <button
+              type="button"
+              key={n}
+              className={`ek-dot${n === i ? " is-active" : ""}`}
+              onClick={() => setIndex(n)}
+              aria-label={`Ke slide ${n + 1}: ${e.nama}`}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 }
