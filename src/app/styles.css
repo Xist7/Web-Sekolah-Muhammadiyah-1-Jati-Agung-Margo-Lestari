@@ -979,6 +979,12 @@ main > section:nth-of-type(5) {
   object-fit: cover;
   background: #000;
 }
+.ek-emoji {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 3rem;
+  line-height: 1.1;
+}
 .ek-text h3 {
   margin: 4px 0 10px;
   font-size: 1.6rem;
@@ -1051,6 +1057,7 @@ main > section:nth-of-type(5) {
 }
 .ek-dots {
   display: flex;
+  flex-wrap: wrap;
   justify-content: center;
   gap: 8px;
   margin-top: 16px;

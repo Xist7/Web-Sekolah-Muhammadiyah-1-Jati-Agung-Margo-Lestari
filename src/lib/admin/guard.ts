@@ -12,7 +12,7 @@ export async function requireAdmin() {
   const session = await auth();
   const access = await getAdminAccess(session?.user?.email);
   if (!session?.user || !access) throw new UnauthorizedError();
-  return { ...session.user, email: access.email };
+  return { ...session.user, email: access.email, role: access.role };
 }
 
 /** Versi tanpa throw, untuk layout / route handler. */

@@ -14,7 +14,7 @@ export default async function DashboardLayout({ children }: LayoutProps<"/dashbo
   if (!admin) redirect("/login?error=Revoked");
 
   return (
-    <AdminShell email={admin.email} name={admin.name ?? ""}>
+    <AdminShell email={admin.email} name={admin.name ?? ""} role={admin.role}>
       {children}
     </AdminShell>
   );

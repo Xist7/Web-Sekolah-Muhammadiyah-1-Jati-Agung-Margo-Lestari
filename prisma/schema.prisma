@@ -131,7 +131,8 @@ model Upload {
 }
 
 
-// Akun yang boleh masuk panel admin (login Google). Email di env ADMIN_EMAILS = admin cadangan.
+// Akun yang boleh masuk panel admin (login Google). Superadmin (1 orang) ditentukan env SUPERADMIN_EMAIL, lihat src/lib/admin/roles.ts.
+// Email di env ADMIN_EMAILS = admin cadangan.
 model Admin {
   id          String    @id @default(cuid())
   email       String    @unique // selalu huruf kecil
@@ -171,8 +172,8 @@ model AuditLog {
   id         String   @id @default(cuid())
   actorEmail String
   actorName  String   @default("")
-  actorRole  String   @default("ADMIN") // ADMIN | SISTEM
-  action     String // LOGIN, LOGOUT, CREATE, UPDATE, DELETE, UPLOAD, PUBLISH, OPEN, CLOSE
+  actorRole  String   @default("ADMIN") // SUPERADMIN | ADMIN | SISTEM
+  action     String // LOGIN, LOGOUT, CREATE, UPDATE, DELETE, UPLOAD, PUBLISH, OPEN, CLOSE, DOWNLOAD
   summary    String // kalimat yang tampil, mis. "mengubah konten Fasilitas"
   target     String   @default("")
   createdAt  DateTime @default(now())

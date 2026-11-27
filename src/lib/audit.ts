@@ -1,4 +1,5 @@
 import "server-only";
+import { roleOf } from "@/lib/admin/roles";
 import { db } from "@/lib/db";
 
 /** Batas penyimpanan audit log (lihat juga halaman /dashboard/audit-log). */
@@ -8,7 +9,7 @@ export const DB_LIMIT_BYTES = 512 * 1024 * 1024; // kuota Neon Free (0,5 GB)
 const DB_EMERGENCY_RATIO = 0.8;
 const PRUNE_EVERY = 25; // cek pemangkasan kira-kira tiap 25 log baru (supaya ringan)
 
-export type AuditAction = "LOGIN" | "LOGOUT" | "CREATE" | "UPDATE" | "DELETE" | "UPLOAD" | "PUBLISH" | "OPEN" | "CLOSE";
+export type AuditAction = "LOGIN" | "LOGOUT" | "CREATE" | "UPDATE" | "DELETE" | "UPLOAD" | "PUBLISH" | "OPEN" | "CLOSE" | "DOWNLOAD";
 type Actor = { email: string; name?: string | null };
 
 /**
@@ -21,6 +22,7 @@ export async function logAudit(actor: Actor, action: AuditAction, summary: strin
       data: {
         actorEmail: actor.email,
         actorName: (actor.name ?? "").slice(0, 120),
+        actorRole: roleOf(actor.email),
         action,
         summary: summary.slice(0, 300),
         target: target.slice(0, 300),
